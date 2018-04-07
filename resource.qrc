@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/play.ico</file>
+        <file>icons/audio.ico</file>
+        <file>icons/audio-off.ico</file>
+        <file>icons/first-track.ico</file>
+        <file>icons/forward.ico</file>
+        <file>icons/last-track.ico</file>
+        <file>icons/pause.ico</file>
+        <file>icons/replay.ico</file>
+        <file>icons/rewind.ico</file>
+        <file>icons/shuffle.ico</file>
+        <file>icons/stop.ico</file>
+    </qresource>
+</RCC>
