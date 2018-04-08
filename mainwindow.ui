@@ -18,14 +18,17 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLineEdit" name="lineEdit_filter">
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Apply a display filter...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButton_apply">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -33,7 +36,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>PushButton</string>
+         <string>Apply</string>
         </property>
        </widget>
       </item>
@@ -44,15 +47,51 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QTableWidget" name="tableWidget"/>
-      <widget class="QTreeWidget" name="treeWidget">
+      <widget class="QTableWidget" name="tableWidget_packlist">
+       <column>
+        <property name="text">
+         <string>No.</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Time</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Source</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Destinatioin</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Protocol</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Length</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Info</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QTreeWidget" name="treeWidget_prototree">
        <column>
         <property name="text">
          <string notr="true">1</string>
         </property>
        </column>
       </widget>
-      <widget class="QListWidget" name="listWidget"/>
+      <widget class="QTextEdit" name="textEdit_packcontent"/>
      </widget>
     </item>
    </layout>
@@ -157,6 +196,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>lineEdit_filter</tabstop>
+  <tabstop>pushButton_apply</tabstop>
+  <tabstop>tableWidget_packlist</tabstop>
+  <tabstop>treeWidget_prototree</tabstop>
+  <tabstop>textEdit_packcontent</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -188,6 +234,22 @@
     <hint type="destinationlabel">
      <x>355</x>
      <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_filter</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButton_apply</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>523</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>581</x>
+     <y>54</y>
     </hint>
    </hints>
   </connection>
