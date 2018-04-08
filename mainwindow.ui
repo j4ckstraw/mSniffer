@@ -117,6 +117,7 @@
     </property>
     <addaction name="actionOption"/>
     <addaction name="actionStart"/>
+    <addaction name="actionPause"/>
     <addaction name="actionStop"/>
     <addaction name="actionRestart"/>
     <addaction name="separator"/>
@@ -146,6 +147,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionStart"/>
+   <addaction name="actionPause"/>
+   <addaction name="actionStop"/>
+   <addaction name="actionRestart"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
@@ -162,16 +167,28 @@
    </property>
   </action>
   <action name="actionStart">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/play.ico</normaloff>:/icons/play.ico</iconset>
+   </property>
    <property name="text">
     <string>Start</string>
    </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/stop.ico</normaloff>:/icons/stop.ico</iconset>
+   </property>
    <property name="text">
     <string>Stop</string>
    </property>
   </action>
   <action name="actionRestart">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/replay.ico</normaloff>:/icons/replay.ico</iconset>
+   </property>
    <property name="text">
     <string>Restart</string>
    </property>
@@ -194,6 +211,15 @@
     <string>About mSniffer</string>
    </property>
   </action>
+  <action name="actionPause">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/pause.ico</normaloff>:/icons/pause.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Pause</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
@@ -203,7 +229,9 @@
   <tabstop>treeWidget_prototree</tabstop>
   <tabstop>textEdit_packcontent</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionQuit</sender>
