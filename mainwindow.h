@@ -18,6 +18,12 @@ public:
 private slots:
     void on_actionQuit_triggered();
 
+    void on_startbutton_clicked();
+
+    void on_pausebutton_clicked();
+
+    void on_actionAbout_mSniffer_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

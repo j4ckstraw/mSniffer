@@ -26,6 +26,9 @@
     <property name="toolTip">
      <string>Start capture</string>
     </property>
+    <property name="statusTip">
+     <string>Start capture</string>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -53,6 +56,9 @@
      </rect>
     </property>
     <property name="toolTip">
+     <string>Stop capture</string>
+    </property>
+    <property name="statusTip">
      <string>Stop capture</string>
     </property>
     <property name="text">
@@ -84,6 +90,9 @@
     <property name="toolTip">
      <string>Restart capture</string>
     </property>
+    <property name="statusTip">
+     <string>Restart capture</string>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -113,6 +122,9 @@
     <property name="toolTip">
      <string>Pause capture</string>
     </property>
+    <property name="statusTip">
+     <string>Pause capture</string>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -130,42 +142,27 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="filtersedit">
+   <widget class="QTextEdit" name="detailsview">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>561</width>
-      <height>20</height>
+      <y>370</y>
+      <width>661</width>
+      <height>111</height>
      </rect>
     </property>
-    <property name="statusTip">
-     <string/>
-    </property>
-    <property name="inputMask">
-     <string/>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>Enter the filters...</string>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="applybutton">
+   <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>40</y>
-      <width>80</width>
-      <height>21</height>
+      <x>10</x>
+      <y>260</y>
+      <width>661</width>
+      <height>111</height>
      </rect>
-    </property>
-    <property name="toolTip">
-     <string>Apply filters</string>
-    </property>
-    <property name="text">
-     <string>Apply</string>
     </property>
    </widget>
    <widget class="QTableWidget" name="packetlist">
@@ -174,7 +171,7 @@
       <x>10</x>
       <y>70</y>
       <width>661</width>
-      <height>161</height>
+      <height>192</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -208,30 +205,42 @@
     <column/>
     <column/>
    </widget>
-   <widget class="QTextEdit" name="protostack">
+   <widget class="QPushButton" name="applybutton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>230</y>
-      <width>661</width>
-      <height>111</height>
+      <x>590</x>
+      <y>40</y>
+      <width>80</width>
+      <height>21</height>
      </rect>
     </property>
-    <property name="readOnly">
-     <bool>true</bool>
+    <property name="toolTip">
+     <string>Apply filters</string>
+    </property>
+    <property name="text">
+     <string>Apply</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="detailsview">
+   <widget class="QLineEdit" name="filtersedit">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>340</y>
-      <width>661</width>
-      <height>111</height>
+      <y>40</y>
+      <width>561</width>
+      <height>20</height>
      </rect>
     </property>
-    <property name="readOnly">
-     <bool>true</bool>
+    <property name="statusTip">
+     <string/>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Enter the filters...</string>
     </property>
    </widget>
   </widget>
@@ -343,11 +352,43 @@
   <tabstop>filtersedit</tabstop>
   <tabstop>applybutton</tabstop>
   <tabstop>packetlist</tabstop>
-  <tabstop>protostack</tabstop>
   <tabstop>detailsview</tabstop>
  </tabstops>
  <resources>
   <include location="resource.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showFullScreen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>355</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

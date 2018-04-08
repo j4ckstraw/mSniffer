@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,4 +17,25 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionQuit_triggered()
 {
     ;
+}
+
+void MainWindow::on_startbutton_clicked()
+{
+    //StartCpature（）；
+    //InactivateStart（）；
+    //ActivatePause（）；
+    //ActivateRestart（）；
+}
+
+void MainWindow::on_pausebutton_clicked()
+{
+    //PauseCapture();
+    //InactivatePause(）；
+    //ActivateStart();
+
+}
+
+void MainWindow::on_actionAbout_mSniffer_triggered()
+{
+    QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!");
 }
