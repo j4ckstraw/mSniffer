@@ -7,11 +7,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    devices = new Devices();
+    // connect(ui->actionRefresh_Interfaces,SIGNAL(triggered(bool)),devices,SLOT(getDevices()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete devices;
 }
 
 void MainWindow::on_actionQuit_triggered()
@@ -37,5 +40,11 @@ void MainWindow::on_pausebutton_clicked()
 
 void MainWindow::on_actionAbout_mSniffer_triggered()
 {
-    QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!");
+    QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!\n");
+}
+
+void MainWindow::on_actionRefresh_Interfaces_triggered()
+{
+    devices->getDevices();
+    devices->printDevices();
 }

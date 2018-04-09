@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "devices.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,8 +25,11 @@ private slots:
 
     void on_actionAbout_mSniffer_triggered();
 
+    void on_actionRefresh_Interfaces_triggered();
+
 private:
     Ui::MainWindow *ui;
+    Devices *devices;
 };
 
 #endif // MAINWINDOW_H
