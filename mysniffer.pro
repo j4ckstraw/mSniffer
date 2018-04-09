@@ -31,15 +31,18 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     packet.cpp \
-    devices.cpp
+    devices.cpp \
+    devicedialog.cpp
 
 HEADERS += \
         mainwindow.h \
     packet.h \
-    devices.h
+    devices.h \
+    devicedialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    devicedialog.ui
 
 RESOURCES += \
     resource.qrc

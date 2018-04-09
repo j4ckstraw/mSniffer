@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "devices.h"
+#include "devicedialog.h"
 
 namespace Ui {
 class MainWindow;
