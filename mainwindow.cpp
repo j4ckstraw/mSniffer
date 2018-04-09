@@ -16,7 +16,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionQuit_triggered()
 {
-    ;
+    this->close();
 }
 
 void MainWindow::on_startbutton_clicked()
