@@ -32,13 +32,15 @@ SOURCES += \
         mainwindow.cpp \
     packet.cpp \
     devices.cpp \
-    devicedialog.cpp
+    devicedialog.cpp \
+    filter.cpp
 
 HEADERS += \
         mainwindow.h \
     packet.h \
     devices.h \
-    devicedialog.h
+    devicedialog.h \
+    filter.h
 
 FORMS += \
         mainwindow.ui \
