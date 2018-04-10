@@ -7,13 +7,13 @@ namespace Ui {
 class DeviceDialog;
 }
 
-class DeviceDialog : public QDialog
+class InterfacesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DeviceDialog(QWidget *parent = 0);
-    ~DeviceDialog();
+    explicit InterfacesDialog(QWidget *parent = 0);
+    ~InterfacesDialog();
 
 private:
     Ui::DeviceDialog *ui;

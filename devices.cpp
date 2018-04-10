@@ -107,8 +107,20 @@ char *Devices::iptos(u_long in)
     return output[which];
 }
 
+
+//QString iptos(u_long in)
+//{
+//    u_char *p;
+//    QString output;
+//    p = (u_char *)&in;
+//    output=output.number((long)p[0],10)+'.'+output.number((long)p[1],10)+\
+//            '.'+output.number((long)p[2],10)+'.'+output.number((long)p[3],10);
+//    return output;
+//}
+
+
 #ifndef __MINGW32__
-char *Devices::ip6tos(sockaddr *sockaddr, char *address, int addrlen)
+char *ip6tos(sockaddr *sockaddr, char *address, int addrlen)
 {
     socklen_t sockaddrlen;
 

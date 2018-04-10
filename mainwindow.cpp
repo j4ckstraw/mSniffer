@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
-#include "devicedialog.h"
+#include "interfacesdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,7 +48,7 @@ void MainWindow::on_actionRefresh_Interfaces_triggered()
 {
 //    devices->getDevices();
 //    devices->printDevices();
-    DeviceDialog devicesdia;
+    InterfacesDialog devicesdia;
     devicesdia.setModal(true);
     devicesdia.exec();
     devices->getDevices();

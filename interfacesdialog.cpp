@@ -1,14 +1,14 @@
-#include "devicedialog.h"
+#include "interfacesdialog.h"
 #include "ui_devicedialog.h"
 
-DeviceDialog::DeviceDialog(QWidget *parent) :
+InterfacesDialog::InterfacesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DeviceDialog)
 {
     ui->setupUi(this);
 }
 
-DeviceDialog::~DeviceDialog()
+InterfacesDialog::~InterfacesDialog()
 {
     delete ui;
 }

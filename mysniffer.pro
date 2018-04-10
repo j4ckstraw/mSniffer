@@ -32,19 +32,18 @@ SOURCES += \
         mainwindow.cpp \
     packet.cpp \
     devices.cpp \
-    devicedialog.cpp \
-    filter.cpp
+    interfacesdialog.cpp
 
 HEADERS += \
         mainwindow.h \
     packet.h \
     devices.h \
-    devicedialog.h \
-    filter.h
+    interfacesdialog.h
 
 FORMS += \
         mainwindow.ui \
-    devicedialog.ui
+    other-interfacedialog.ui \
+    interfacesdialog.ui
 
 RESOURCES += \
     resource.qrc
