@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "interfacesdialog.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -28,6 +30,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    interfacesDialog *ifdialog;
 };
 
 #endif // MAINWINDOW_H

@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ifdialog = new interfacesDialog();
 }
 
 MainWindow::~MainWindow()
@@ -42,5 +43,5 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
 
 void MainWindow::on_actionRefresh_Interfaces_triggered()
 {
-
+    ifdialog->show();
 }
