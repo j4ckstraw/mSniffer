@@ -2,8 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "devices.h"
-#include "interfacesdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,7 +28,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Devices *devices;
 };
 
 #endif // MAINWINDOW_H

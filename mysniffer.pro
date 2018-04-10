@@ -30,20 +30,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    packet.cpp \
-    devices.cpp \
-    interfacesdialog.cpp
+    packet.cpp
 
 HEADERS += \
         mainwindow.h \
-    packet.h \
-    devices.h \
-    interfacesdialog.h
+    packet.h
 
 FORMS += \
-        mainwindow.ui \
-    other-interfacedialog.ui \
-    interfacesdialog.ui
+        mainwindow.ui
 
 RESOURCES += \
     resource.qrc
