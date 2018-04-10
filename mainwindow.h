@@ -30,7 +30,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    interfacesDialog *ifdialog;
 };
 
 #endif // MAINWINDOW_H
