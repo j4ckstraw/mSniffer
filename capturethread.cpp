@@ -1,5 +1,6 @@
 #include "capturethread.h"
 #include "filter.h"
+#include "common.h"
 #include <QString>
 
 extern pcap_if_t *alldevs;
@@ -13,6 +14,11 @@ CaptureThread::CaptureThread()
 void CaptureThread::stop()
 {
     stopped = true;
+}
+
+void CaptureThread::CaptureStopped()
+{
+
 }
 
 void CaptureThread::run()
@@ -29,7 +35,7 @@ void CaptureThread::run()
     clock_t CapTime;
 
     /* 跳转到已选设备 */
-    for(d=alldevs, i=0; i< Para.Selectnum;d=d->next, i++);
+    for(d=alldevs, i=0; i< interface_selected;d=d->next, i++);
 
     /* 打开适配器 */
     if ( (adhandle= pcap_open(d->name,  // 设备名

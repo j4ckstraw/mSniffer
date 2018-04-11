@@ -9,9 +9,12 @@ class PrintThread : public QThread
 public:
     PrintThread();
     void stop();
+    bool MuxFlag;
 
 signals:
     void PrintStopped();
+signals:
+    void Modelchanged();
 
 protected:
     void run();

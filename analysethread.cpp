@@ -1,4 +1,5 @@
 #include "analysethread.h"
+#include "common.h"
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -11,6 +12,11 @@ AnalyseThread::AnalyseThread()
 void AnalyseThread::stop()
 {
     stopped = true;
+}
+
+void AnalyseThread::AnalyzeStopped()
+{
+
 }
 
 void AnalyseThread::run()

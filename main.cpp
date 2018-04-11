@@ -1,11 +1,14 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QStandardItemModel>
 
 #include "pcap.h"
 
 // global vars
 pcap_if_t *alldevs;
 int interface_selected;
+u_char *dataIndex;
+QStandardItemModel *PacketModel;
 
 int main(int argc, char *argv[])
 {

@@ -1,8 +1,11 @@
 #include "printthread.h"
-
+#include "common.h"
+#include <QStandardItemModel>
+#include <winsock2.h>
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
+extern QStandardItemModel *PacketModel;//数据包基本信息
 
 void PrintPacket_online(Packet *Pindex);
 
@@ -14,6 +17,11 @@ PrintThread::PrintThread()
 void PrintThread::stop()
 {
     stopped = true;
+}
+
+void PrintThread::Modelchanged()
+{
+
 }
 
 void PrintThread::run()
@@ -115,11 +123,11 @@ void PrintPacket_online(Packet *Pindex)
             else
             {
             port=ntohs(Pindex->UDP_header->sport);
-            s=QString("%1%2").arg(str2Qstr("源端口：")).arg(port);//源端口
+            s=QString("%1%2").arg(("源端口：")).arg(port);//源端口
             PacketModel->setData(PacketModel->index(row,6),s);
 
             port=ntohs(Pindex->UDP_header->dport);
-            s=QString("%1%2").arg(str2Qstr("目的端口：")).arg(port);//目的端口
+            s=QString("%1%2").arg(("目的端口：")).arg(port);//目的端口
             PacketModel->setData(PacketModel->index(row,7),s);
             }
         }
@@ -137,11 +145,11 @@ void PrintPacket_online(Packet *Pindex)
             else
             {
                 port=ntohs(Pindex->TCP_header->sport);
-                s=QString("%1%2").arg(str2Qstr("源端口：")).arg(port);//源端口
+                s=QString("%1%2").arg(("源端口：")).arg(port);//源端口
                 PacketModel->setData(PacketModel->index(row,6),s);
 
                 port=ntohs(Pindex->TCP_header->dport);
-                s=QString("%1%2").arg(str2Qstr("目的端口：")).arg(port);//目的端口
+                s=QString("%1%2").arg(("目的端口：")).arg(port);//目的端口
                 PacketModel->setData(PacketModel->index(row,7),s);
             }
         }
@@ -179,7 +187,7 @@ void PrintPacket_online(Packet *Pindex)
         PacketModel->setData(PacketModel->index(row,5),s);
 
         long t=ntohl(Pindex->IPv6_header->load_length);
-        s=QString("%1%2").arg(str2Qstr("有效负荷长度:")).arg(t);//报要1
+        s=QString("%1%2").arg(("有效负荷长度:")).arg(t);//报要1
 
 
         s=QString("");//报要2
@@ -199,13 +207,13 @@ void PrintPacket_online(Packet *Pindex)
 
         if(ntohs(Pindex->ARP_header->option)==0x0001)
         {
-            s=QString(str2Qstr("广播"));
+            s=QString(("广播"));
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-            s=QString("%1 %2.%3.%4.%5 %6").arg(str2Qstr("谁有")).arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4).arg(str2Qstr("的物理地址"));//报要1
+            s=QString("%1 %2.%3.%4.%5 %6").arg(("谁有")).arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4).arg(("的物理地址"));//报要1
             PacketModel->setData(PacketModel->index(row,6),s);
 
-            s=QString("%1 %2.%3.%4.%5").arg(str2Qstr("请告知")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要2
+            s=QString("%1 %2.%3.%4.%5").arg(("请告知")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要2
             PacketModel->setData(PacketModel->index(row,7),s);
         }
         else
@@ -213,10 +221,10 @@ void PrintPacket_online(Packet *Pindex)
             s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4);
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-            s=QString("%1 %2.%3.%4.%5").arg(str2Qstr("我是")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要1
+            s=QString("%1 %2.%3.%4.%5").arg(("我是")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要1
            PacketModel->setData(PacketModel->index(row,6),s);
 
-           s=QString("%1 %2：%3：%4：%5：%6：%7").arg(str2Qstr("我的物理地址是")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
+           s=QString("%1 %2：%3：%4：%5：%6：%7").arg(("我的物理地址是")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
            PacketModel->setData(PacketModel->index(row,7),s);
         }
 
@@ -233,13 +241,13 @@ void PrintPacket_online(Packet *Pindex)
         PacketModel->setData(PacketModel->index(row,5),s);
         if(ntohs(Pindex->ARP_header->option)==0x0003)
         {
-            s=QString(str2Qstr("广播"));
+            s=QString(("广播"));
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-            s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(str2Qstr("谁有")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16).arg(str2Qstr("的IP地址"));//报要1
+            s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("谁有")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16).arg(("的IP地址"));//报要1
             PacketModel->setData(PacketModel->index(row,6),s);
 
-            s=QString("%1 %2：%3：%4：%5：%6：%7").arg(str2Qstr("请告知")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
+            s=QString("%1 %2：%3：%4：%5：%6：%7").arg(("请告知")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
             PacketModel->setData(PacketModel->index(row,7),s);
         }
         else
@@ -247,7 +255,7 @@ void PrintPacket_online(Packet *Pindex)
             s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4);
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-           s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(str2Qstr("我有")).arg(Pindex->ARP_header->dnether_address.byte1).arg(Pindex->ARP_header->dnether_address.byte2).arg(Pindex->ARP_header->dnether_address.byte3).arg(Pindex->ARP_header->dnether_address.byte4).arg(Pindex->ARP_header->dnether_address.byte5).arg(Pindex->ARP_header->dnether_address.byte6).arg(str2Qstr("的IP地址"));//报要1
+           s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("我有")).arg(Pindex->ARP_header->dnether_address.byte1).arg(Pindex->ARP_header->dnether_address.byte2).arg(Pindex->ARP_header->dnether_address.byte3).arg(Pindex->ARP_header->dnether_address.byte4).arg(Pindex->ARP_header->dnether_address.byte5).arg(Pindex->ARP_header->dnether_address.byte6).arg(("的IP地址"));//报要1
            PacketModel->setData(PacketModel->index(row,6),s);
 
            s=QString("");//报要2

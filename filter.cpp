@@ -3,8 +3,6 @@
 extern pcap_if_t *alldevs;
 extern int interface_selected;
 
-
-
 Filter::Filter()
 {
 
@@ -12,6 +10,8 @@ Filter::Filter()
 
 int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
 {
+    pcap_if_t *d;
+    int i;
     packet_filter = inputFilter;
     if(!inputAdhandle) fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n");
 
@@ -23,6 +23,10 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
         pcap_freealldevs(alldevs);
         return -1;
     }
+
+
+    /* Jump to the selected adapter */
+    for(d=alldevs, i=0; i< interface_selected-1 ;d=d->next, i++);
 
     if(d->addresses != NULL)
         /* Retrieve the mask of the first address of the interface */

@@ -2,6 +2,7 @@
 #define CAPTURETHREAD_H
 
 #include "pcap.h"
+#include <QThread>
 
 class CaptureThread : public QThread
 {

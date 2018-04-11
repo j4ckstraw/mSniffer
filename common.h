@@ -8,11 +8,22 @@
 #include <stdlib.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include "packet.h"
 
 
+extern u_char *dataIndex;
 QString iptos(u_long in);
 QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen);
 
+void AnalyzeEthernet();
+void AnalyzeARP();
+void AnalyzeIP();
+
+class Globe
+{
+public:
+    static struct Packetlist capPacket;
+};
 
 /* 4 bytes IP address */
 typedef struct ip_address
@@ -23,7 +34,7 @@ typedef struct ip_address
     u_char byte4;
 }ip_address;
 
-/* 16字节的IPv6地址 */
+/* 16 bytes IPv6 address */
 typedef struct ipv6_address{
     u_char byte1;
     u_char byte2;

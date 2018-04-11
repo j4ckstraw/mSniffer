@@ -13,7 +13,7 @@ TEMPLATE = app
 
 # where my winpacp install
 INCLUDEPATH += D:/winpcap-develop-pack/WpdPack/Include
-LIBS += -L D:/winpcap-develop-pack/WpdPack/Lib -lwpcap -lPacket
+LIBS += -L D:/winpcap-develop-pack/WpdPack/Lib -lwpcap -lPacket -lws2_32
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings

@@ -1,6 +1,7 @@
 #ifndef FILTER_H
 #define FILTER_H
 #include "pcap.h"
+#include <QString>
 
 class Filter
 {
