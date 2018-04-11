@@ -34,13 +34,21 @@ SOURCES += \
         mainwindow.cpp \
     packet.cpp \
     interfacesdialog.cpp \
-    common.cpp
+    common.cpp \
+    filter.cpp \
+    capturethread.cpp \
+    analysethread.cpp \
+    printthread.cpp
 
 HEADERS += \
         mainwindow.h \
     packet.h \
     interfacesdialog.h \
-    common.h
+    common.h \
+    filter.h \
+    capturethread.h \
+    analysethread.h \
+    printthread.h
 
 FORMS += \
         mainwindow.ui \
