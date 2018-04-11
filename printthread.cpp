@@ -15,10 +15,7 @@ PrintThread::PrintThread()
     stopped = false;
 }
 
-PrintThread::~PrintThread()
-{
-
-}
+PrintThread::~PrintThread(){}
 
 void PrintThread::stop()
 {

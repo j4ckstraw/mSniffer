@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    setWindowTitle("mSniffer");
     startFlag=false;
     comboindex=0;
     selnum=-1;
@@ -55,9 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionStop->setEnabled(false);
     ui->actionRestart->setEnabled(false);
 
-    connect(&priThread,SIGNAL(Modelchanged()),this,SLOT(SetModel()));
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
+    connect(&priThread,SIGNAL(Modelchanged()),this,SLOT(SetModel()));
+
 }
 
 MainWindow::~MainWindow()
@@ -88,7 +89,12 @@ void MainWindow::on_actionStart_triggered()
     ui->actionPause->setEnabled(true);
     ui->actionStop->setEnabled(true);
     ui->actionRestart->setEnabled(true);
-    capThread.start();
+    if(!capThread.isRunning())
+        capThread.start();
+    if(!anaThread.isRunning())
+        anaThread.start();
+    if(!priThread.isRunning())
+        priThread.start(QThread::HighPriority);
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -111,7 +117,14 @@ void MainWindow::on_actionRestart_triggered()
     ui->actionStop->setEnabled(true);
     ui->actionRestart->setEnabled(true);
     capThread.terminate();
-    capThread.start();
+    anaThread.terminate();
+    priThread.terminate();
+    if(!capThread.isRunning())
+        capThread.start();
+    if(!anaThread.isRunning())
+        anaThread.start();
+    if(!priThread.isRunning())
+        priThread.start(QThread::HighPriority);
 }
 
 void MainWindow::on_actionPause_triggered()
