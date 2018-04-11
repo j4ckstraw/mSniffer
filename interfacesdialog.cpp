@@ -165,4 +165,5 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
 void interfacesDialog::on_buttonBox_accepted()
 {
     interface_selected = ready_to_selected;
+    qDebug() << "SELECTED INTERFACE: " << interface_selected;
 }

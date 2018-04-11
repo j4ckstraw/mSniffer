@@ -47,51 +47,9 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QTableWidget" name="tableWidget_packlist">
-       <column>
-        <property name="text">
-         <string>No.</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Time</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Source</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Destinatioin</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Protocol</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Length</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Info</string>
-        </property>
-       </column>
-      </widget>
-      <widget class="QTreeWidget" name="treeWidget_prototree">
-       <column>
-        <property name="text">
-         <string notr="true">1</string>
-        </property>
-       </column>
-      </widget>
-      <widget class="QTextEdit" name="textEdit_packcontent"/>
+      <widget class="QTableView" name="tableView_packet"/>
+      <widget class="QTreeView" name="treeView_detail"/>
+      <widget class="QTextEdit" name="textEdit_raw"/>
      </widget>
     </item>
    </layout>
@@ -225,9 +183,9 @@
  <tabstops>
   <tabstop>lineEdit_filter</tabstop>
   <tabstop>pushButton_apply</tabstop>
-  <tabstop>tableWidget_packlist</tabstop>
-  <tabstop>treeWidget_prototree</tabstop>
-  <tabstop>textEdit_packcontent</tabstop>
+  <tabstop>tableView_packet</tabstop>
+  <tabstop>treeView_detail</tabstop>
+  <tabstop>textEdit_raw</tabstop>
  </tabstops>
  <resources>
   <include location="resource.qrc"/>

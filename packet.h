@@ -69,15 +69,6 @@ typedef struct Packet
         header.ts.tv_usec=cheader->ts.tv_usec;
         memcpy(pkt_data,data,header.len);
     }
-
-    /*void DeleteNode()
-    {
-        if(header!=NULL)
-            delete header;
-        if(pkt_data!=NULL)
-            delete pkt_data;
-    }*/
-
 }Packet;
 
 typedef struct Packetlist

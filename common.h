@@ -25,6 +25,17 @@ public:
     static struct Packetlist capPacket;
 };
 
+enum class HEADER_T{
+    NO,
+    TIMESTAMP,
+    SOURCE,
+    DESTINATION,
+    PROTOCOL,
+    LENGTH,
+    INFO1,
+    INFO2
+};
+
 /* 4 bytes IP address */
 typedef struct ip_address
 {

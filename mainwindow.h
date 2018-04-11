@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "capturethread.h"
+#include "analysethread.h"
+#include "printthread.h"
 #include "interfacesdialog.h"
 
 namespace Ui {
@@ -19,17 +21,30 @@ public:
 
 private slots:
     void on_actionQuit_triggered();
-
-    void on_startbutton_clicked();
-
-    void on_pausebutton_clicked();
-
     void on_actionAbout_mSniffer_triggered();
-
     void on_actionRefresh_Interfaces_triggered();
+    void on_actionStart_triggered();
+    void on_actionStop_triggered();
+    void on_actionRestart_triggered();
+    void on_actionPause_triggered();
+
+    // void StartOrStopThread();
+    void SetModel();
+    void StopPrint();
+    void StopAnalyze();
 
 private:
     Ui::MainWindow *ui;
+
+    int selnum;//选中的数据包编号
+    volatile bool startFlag;//开始抓包标志
+    volatile bool rawdataFlag;//正在输出Rawdata标志
+    interfacesDialog *chosedialog;//选择网卡对话框
+    CaptureThread capThread;//捕获数据包线程
+    AnalyseThread anaThread;//分析数据包线程
+    PrintThread priThread;//实时打印数据包信息线程
+    int comboindex;//选择过滤方式下拉表框
+    // MyGraph *Piegraph;//输出统计饼图窗口
 };
 
 #endif // MAINWINDOW_H

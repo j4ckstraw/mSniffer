@@ -5,7 +5,7 @@
 #include "pcap.h"
 
 namespace Ui {
-class interfacesDialog;
+    class interfacesDialog;
 }
 
 class interfacesDialog : public QDialog

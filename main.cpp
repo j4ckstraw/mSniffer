@@ -1,14 +1,13 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <QStandardItemModel>
 
 #include "pcap.h"
+#include "common.h"
 
 // global vars
 pcap_if_t *alldevs;
 int interface_selected;
 u_char *dataIndex;
-QStandardItemModel *PacketModel;
 
 int main(int argc, char *argv[])
 {
@@ -30,11 +29,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    interfacesDialog *chosedialog = new interfacesDialog();
     w.show();
-
+    chosedialog->show();
 
     // release resources before return;
     int e = a.exec();
+    Globe::capPacket.DeleteList();
     pcap_freealldevs(alldevs);
     return e;
 }

@@ -19,10 +19,7 @@ void PrintThread::stop()
     stopped = true;
 }
 
-void PrintThread::Modelchanged()
-{
-
-}
+void PrintThread::Modelchanged(){}
 
 void PrintThread::run()
 {

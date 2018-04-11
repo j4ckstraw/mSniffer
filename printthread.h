@@ -12,8 +12,7 @@ public:
     bool MuxFlag;
 
 signals:
-    void PrintStopped();
-signals:
+    // void PrintStopped();
     void Modelchanged();
 
 protected:
