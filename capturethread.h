@@ -6,8 +6,11 @@
 
 class CaptureThread : public QThread
 {
+    Q_OBJECT
+
 public:
-    CaptureThread();
+    explicit CaptureThread();
+    ~CaptureThread();
     void stop();
 
 signals:

@@ -6,6 +6,8 @@
 
 class AnalyseThread : public QThread
 {
+    Q_OBJECT
+
 public:
     AnalyseThread();
     void stop();

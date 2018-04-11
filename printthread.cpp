@@ -2,6 +2,7 @@
 #include "common.h"
 #include <QStandardItemModel>
 #include <winsock2.h>
+#include <QDebug>
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -14,12 +15,15 @@ PrintThread::PrintThread()
     stopped = false;
 }
 
+PrintThread::~PrintThread()
+{
+
+}
+
 void PrintThread::stop()
 {
     stopped = true;
 }
-
-void PrintThread::Modelchanged(){}
 
 void PrintThread::run()
 {
@@ -36,6 +40,7 @@ void PrintThread::run()
                 }
                 PrintPacket_online(Globe::capPacket.Pindex);
                 emit Modelchanged();
+                qDebug() << "emit Modelchanged";
                 Globe::capPacket.Pindex->Pflag=true;
             }
             Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
@@ -52,6 +57,7 @@ void PrintThread::run()
             }
             PrintPacket_online(Globe::capPacket.Pindex);
             emit Modelchanged();
+            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
         Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
@@ -66,6 +72,7 @@ void PrintThread::run()
             }
             PrintPacket_online(Globe::capPacket.Pindex);
             emit Modelchanged();
+            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
     }

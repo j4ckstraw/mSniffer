@@ -6,13 +6,14 @@
 
 class PrintThread : public QThread
 {
+    Q_OBJECT
 public:
     PrintThread();
+    ~PrintThread();
     void stop();
     bool MuxFlag;
 
 signals:
-    // void PrintStopped();
     void Modelchanged();
 
 protected:

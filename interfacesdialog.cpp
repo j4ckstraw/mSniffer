@@ -120,9 +120,8 @@ interfacesDialog::interfacesDialog() :
     }
     ui->treeView->setModel(AdaperInfo);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(acceptSelect()));
+//    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+//    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
 }// interfacesDialog()
 

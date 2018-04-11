@@ -13,12 +13,14 @@ CaptureThread::CaptureThread()
     stopped = false;
 }
 
+CaptureThread::~CaptureThread(){}
+
 void CaptureThread::stop()
 {
     stopped = true;
 }
 
-void CaptureThread::CaptureStopped(){}
+//void CaptureThread::CaptureStopped(){}
 
 void CaptureThread::run()
 {
@@ -100,9 +102,10 @@ void CaptureThread::run()
                 printf("EOF was reached reading from an offline capture\n");*/
             continue;
         }
-        qDebug() << ".";
+
     }
     stopped = false;
     emit CaptureStopped();//告知主界面捕获已停止，可以停止分析线程
+    qDebug() << "emit CaptureStopped";
     return ;
 }

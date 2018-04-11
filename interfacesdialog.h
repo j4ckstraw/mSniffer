@@ -19,7 +19,6 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
-
     void on_treeView_clicked(const QModelIndex &index);
 
 private:

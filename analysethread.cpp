@@ -1,5 +1,6 @@
 #include "analysethread.h"
 #include "common.h"
+#include <QDebug>
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -12,11 +13,6 @@ AnalyseThread::AnalyseThread()
 void AnalyseThread::stop()
 {
     stopped = true;
-}
-
-void AnalyseThread::AnalyzeStopped()
-{
-
 }
 
 void AnalyseThread::run()
@@ -43,6 +39,7 @@ void AnalyseThread::run()
             Globe::capPacket.Index->Aflag=true;
         }
         Globe::capPacket.Index=Globe::capPacket.Index->Next;
+        qDebug() << "ana";
     }
     if(Globe::capPacket.Index!=NULL)//分析最后一个数据包
     {
@@ -51,5 +48,6 @@ void AnalyseThread::run()
     }
     stopped = false;
     emit AnalyzeStopped();//告知主界面分析已停止，可以停止打印线程
+    qDebug() << "emit AnalyzeStopped";
     return ;
 }

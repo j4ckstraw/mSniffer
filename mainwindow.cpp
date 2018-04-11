@@ -2,8 +2,11 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QStandardItemModel>
-#include <QTableWidget>
 #include "common.h"
+#include <QDebug>
+#include "printthread.h"
+#include "capturethread.h"
+#include "analysethread.h"
 
 QStandardItemModel *PacketModel = new QStandardItemModel();//数据包基本信息;
 
@@ -59,11 +62,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    capThread.terminate();
+    anaThread.terminate();
+    priThread.terminate();
     delete ui;
 }
 
 void MainWindow::on_actionQuit_triggered()
 {
+    capThread.terminate();
+    anaThread.terminate();
+    priThread.terminate();
     this->close();
 }
 
@@ -123,10 +132,12 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
 
 void MainWindow::SetModel()
 {
-    priThread.MuxFlag=false;//Print_online_ThreadPacketModel
+    qDebug() << "Now in SetModel";
+    priThread.MuxFlag=false;
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
+        qDebug() << "setModel";
     }
     else
     {

@@ -133,6 +133,7 @@ void AnalyzeEthernet()//分析以太网头
     strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
     sprintf(Globe::capPacket.Index->timestamp,"%s%c%d",timestr,'.',Globe::capPacket.Index->header.ts.tv_usec);
 
+
     //u_short k
     Globe::capPacket.Index->ether_header->ether_type=ntohs(Globe::capPacket.Index->ether_header->ether_type);
     Globe::capPacket.Index->header.len=Globe::capPacket.Index->header.len;
