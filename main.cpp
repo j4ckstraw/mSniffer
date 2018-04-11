@@ -14,11 +14,13 @@ int main(int argc, char *argv[])
     MainWindow w;
 
     interface_selected = 0;  //defalut is the first interface
+
 //    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
 //    {
 //        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
 //        return 0;
 //    }
+
     if(pcap_findalldevs(&alldevs, errbuf) == -1)
     {
         fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);

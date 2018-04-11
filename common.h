@@ -6,9 +6,160 @@
 #include <windows.h>
 #include <time.h>
 #include <stdlib.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 
 QString iptos(u_long in);
 QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen);
+
+
+/* 4 bytes IP address */
+typedef struct ip_address
+{
+    u_char byte1;
+    u_char byte2;
+    u_char byte3;
+    u_char byte4;
+}ip_address;
+
+/* 16字节的IPv6地址 */
+typedef struct ipv6_address{
+    u_char byte1;
+    u_char byte2;
+    u_char byte3;
+    u_char byte4;
+    u_char byte5;
+    u_char byte6;
+    u_char byte7;
+    u_char byte8;
+    u_char byte9;
+    u_char byte10;
+    u_char byte11;
+    u_char byte12;
+    u_char byte13;
+    u_char byte14;
+    u_char byte15;
+    u_char byte16;
+}ipv6_address;
+
+/* 6字节的MAC地址 */
+typedef struct mac_address{
+    u_char byte1;
+    u_char byte2;
+    u_char byte3;
+    u_char byte4;
+    u_char byte5;
+    u_char byte6;
+}mac_address;
+
+/* Ethernet header */
+typedef struct ethernet_header{
+    mac_address ether_dhost;
+    mac_address ether_shost;
+    u_short ether_type;
+}ethernet_header;
+
+/* IPv4 header */
+typedef struct ip_header
+{
+    u_char	ver_ihl;		// Version (4 bits) + Internet header length (4 bits)
+    u_char	tos;			// Type of service
+    u_short tlen;			// Total length
+    u_short identification; // Identification
+    u_short flags_fo;		// Flags (3 bits) + Fragment offset (13 bits)
+    u_char	ttl;			// Time to live
+    u_char	proto;			// Protocol
+    u_short crc;			// Header checksum
+    ip_address	saddr;		// Source address
+    ip_address	daddr;		// Destination address
+    u_int	op_pad;			// Option + Padding
+}ip_header;
+
+
+/* IPv6 header */
+typedef struct ipv6_header{
+    u_long  ver_ihl;        // 版本 (4 bits) + 优先级(8 bits)+流标签(20 bits)
+    u_short load_length;    // 有效负荷长度
+    u_char next_header;     // 下一报头
+    u_char jump_limit;      // 跳限制
+    ipv6_address source_ip;    //源ip地址
+    ipv6_address dest_ip;      //目的ip地址
+}ipv6_header;
+
+/*ARP首部*/
+typedef struct arp_header{
+    u_short hardware_type;              // 硬件类型 (16 bits)
+    u_short protocal_type;              //协议类型(16 bits)
+    u_char  hwadd_len;                  //硬件地址长度(8 bit)
+    u_char  proadd_len;                 //协议地址长度(8 bit)
+    u_short option;                     //操作类型(16 bits)
+    mac_address snether_address;        // 发送端以太网地址(48 bits)
+    ip_address  sip_address;              //发送端IP地址(32 bits)
+    mac_address dnether_address;       //目的以太网地址(48 bits)
+    ip_address  dip_address;             // 目的IP地址（32 bits）
+}arp_header;
+
+/* ICMP 首部*/
+typedef struct icmp_header{
+    //    u_char  type;          //类型
+    //    u_char  code;          //代码
+    //    u_short ckc;          //校验和
+    //    u_short id;           //识别号
+    //    u_short seq;          //报文序列号
+    //    u_short timestamp;    //时戳
+
+    //    __u8      type;
+    //    __u8      code;
+    //    __sum16   checksum;
+    //    union {
+    //        struct {
+    //            __be16  id;
+    //            __be16  sequence;
+    //        } echo;
+    //        __be32  gateway;
+    //        struct {
+    //            __be16  __unused;
+    //            __be16  mtu;
+    //        } frag;
+    //    } un;
+
+    u_char    type;
+    u_char    code;
+    u_short   checksum;
+    union {
+        struct {
+            u_short  id;
+            u_long   sequence;
+        } echo;
+        u_long  gateway;
+        struct {
+            u_short  __unused;
+            u_short  mtu;
+        } frag;
+    } un;
+
+}icmp_header;
+
+/* TCP header */
+typedef struct tcp_header{
+    u_short sport;          // 源端口(Source port)
+    u_short dport;          // 目的端口(Destination port)
+    u_long  seq;            //顺序号
+    u_long  ack;            //确认号
+    u_short tcp_res;        // TCP头长(4 bits)+保留位(6 bits)+Flags(URG+ACK+PSH+RST+SYN+FIN)
+    u_short windsize;       //窗口大小
+    u_short crc;            //校验和
+    u_short urgp;           //紧急指针
+}tcp_header;
+
+/* UDP header*/
+typedef struct udp_header
+{
+    u_short sport;			// Source port
+    u_short dport;			// Destination port
+    u_short len;			// Datagram length
+    u_short crc;			// Checksum
+}udp_header;
 
 #endif // COMMON_H

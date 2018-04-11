@@ -1,6 +1,4 @@
 #include "common.h"
-#include <winsock2.h>
-#include <ws2tcpip.h>
 
 QString iptos(u_long in)
 {

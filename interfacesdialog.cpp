@@ -10,8 +10,9 @@
 extern pcap_if_t *alldevs;
 extern int interface_selected;
 
-int ready_to_selected;
-QList<QString> devicesName;
+static QList<QString> devicesName;
+static int ready_to_selected;
+
 
 interfacesDialog::interfacesDialog(QWidget *parent) :
     QDialog(parent),
