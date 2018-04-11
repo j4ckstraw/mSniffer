@@ -7,6 +7,7 @@
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
+extern QString captureFilterString;
 
 CaptureThread::CaptureThread()
 {
@@ -29,9 +30,8 @@ void CaptureThread::run()
     char errbuf[PCAP_ERRBUF_SIZE];
     int i;
     u_int netmask;
-    // TODO
-    // Filter filter;
-    // QString inputFilter; /* 捕获过滤器 */
+
+    Filter filter;
     int res;
     clock_t capTime;
 
@@ -65,8 +65,8 @@ void CaptureThread::run()
         return;
     }
 
-    // TODO
-    // filter.setFilter(adhandle,inputFilter);
+
+    filter.setFilter(adhandle,captureFilterString);
 
     if(!Globe::capPacket.Iniflag)
     {

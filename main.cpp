@@ -8,6 +8,8 @@
 pcap_if_t *alldevs;
 int interface_selected;
 u_char *dataIndex;
+QString captureFilterString;
+QString displayFilterString;
 
 int main(int argc, char *argv[])
 {

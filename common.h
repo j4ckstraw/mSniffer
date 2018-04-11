@@ -124,12 +124,12 @@ typedef struct arp_header{
 
 /* ICMP 首部*/
 typedef struct icmp_header{
-    //    u_char  type;          //类型
-    //    u_char  code;          //代码
-    //    u_short ckc;          //校验和
-    //    u_short id;           //识别号
-    //    u_short seq;          //报文序列号
-    //    u_short timestamp;    //时戳
+        u_char  type;          //类型
+        u_char  code;          //代码
+        u_short ckc;          //校验和
+        u_short id;           //识别号
+        u_short seq;          //报文序列号
+        u_short timestamp;    //时戳
 
     //    __u8      type;
     //    __u8      code;
@@ -146,20 +146,22 @@ typedef struct icmp_header{
     //        } frag;
     //    } un;
 
-    u_char    type;
-    u_char    code;
-    u_short   checksum;
-    union {
-        struct {
-            u_short  id;
-            u_long   sequence;
-        } echo;
-        u_long  gateway;
-        struct {
-            u_short  __unused;
-            u_short  mtu;
-        } frag;
-    } un;
+//    u_char    type;
+//    u_char    code;
+//    // u_short   checksum;
+//    u_short ckc;
+//    union {
+//        struct {
+//            u_short  id;
+//            // u_long   sequence;
+//            u_long seq;
+//        } echo;
+//        u_long  gateway;
+//        struct {
+//            u_short  __unused;
+//            u_short  mtu;
+//        } frag;
+//    } un;
 
 }icmp_header;
 

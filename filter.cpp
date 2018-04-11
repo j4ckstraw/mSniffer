@@ -1,4 +1,5 @@
 #include "filter.h"
+#include <QMessageBox>
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -13,6 +14,7 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
     pcap_if_t *d;
     int i;
     packet_filter = inputFilter;
+    adhandle = inputAdhandle;
     if(!inputAdhandle) fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n");
 
     /* Check the link layer. We support only Ethernet for simplicity. */
@@ -38,9 +40,10 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
     //compile the filter
     if (pcap_compile(adhandle, &fcode, packet_filter.toStdString().c_str(), 1, netmask) <0 )
     {
-        fprintf(stderr,"\nUnable to compile the packet filter. Check the syntax.\n");
+        // fprintf(stderr,"\nUnable to compile the packet filter. Check the syntax.\n");
         /* Free the device list */
         // pcap_freealldevs(alldevs);
+        QMessageBox::warning(0,"Filter Error","\nUnable to compile the packet filter. Check the syntax.\n");
         return -1;
     }
     //set the filter

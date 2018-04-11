@@ -9,6 +9,7 @@
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
+extern QString captureFilterString;
 
 static QList<QString> devicesName;
 static int ready_to_selected;
@@ -25,10 +26,15 @@ interfacesDialog::interfacesDialog() :
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
+    // display filter
+    ui->lineEdit_filter->setText(captureFilterString);
+
+    // disble OK button
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     setWindowTitle("Chose Interface");
 
-    interface_selected = 0;         //defalut is the first interface
+    //defalut is the first interface
+    interface_selected = 0;
 
     QStandardItemModel *AdaperInfo = new QStandardItemModel();
     QStandardItem *rootitem = new QStandardItem("Available Adapers");
@@ -154,6 +160,8 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
         else strText=s;
         qDebug() << strText;
     }
+     captureFilterString = ui->lineEdit_filter->text();
+     qDebug() << captureFilterString;
      ready_to_selected=devicesName.indexOf(strText);
      qDebug() << ready_to_selected;
      qDebug() << strText;

@@ -18,6 +18,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void PrintDetaildata(int);
 
 private slots:
     void on_actionQuit_triggered();
@@ -32,6 +33,8 @@ private slots:
     void SetModel();
     void StopPrint();
     void StopAnalyze();
+
+    void on_tableView_packet_clicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
