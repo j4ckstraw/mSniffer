@@ -1,5 +1,6 @@
 #include "filter.h"
 #include <QMessageBox>
+#include <QDebug>
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -54,4 +55,5 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
         // pcap_freealldevs(alldevs);
         return -1;
     }
+    qDebug() << "Set Filter : " << packet_filter;
 }

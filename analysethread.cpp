@@ -39,7 +39,7 @@ void AnalyseThread::run()
             Globe::capPacket.Index->Aflag=true;
         }
         Globe::capPacket.Index=Globe::capPacket.Index->Next;
-        qDebug() << "ana";
+        // qDebug() << "ana";
     }
     if(Globe::capPacket.Index!=NULL)//分析最后一个数据包
     {

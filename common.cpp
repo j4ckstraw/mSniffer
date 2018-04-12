@@ -59,21 +59,21 @@ void AnalyzeIP()//分析IP报头
         {
             Globe::capPacket.UDP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("UDP");
-            Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+14+IP_len);
+            Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+8;
         }
         else if(Globe::capPacket.Index->IPv4_header->proto==6)//TCP
         {
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
-            Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+14+IP_len);
+            Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+20;
         }
         else if(Globe::capPacket.Index->IPv4_header->proto==1)//ICMP
         {
             Globe::capPacket.ICMP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("ICMP");
-            Globe::capPacket.Index->ICMP_header=(icmp_header *)(dataIndex+14+IP_len);
+            Globe::capPacket.Index->ICMP_header=(icmp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+10;
         }
         else
@@ -92,14 +92,14 @@ void AnalyzeIP()//分析IP报头
         {
             Globe::capPacket.UDP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("UDP");
-            Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+14+40);
+            Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+40);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+8;
         }
         else if(Globe::capPacket.Index->IPv6_header->next_header==6)//TCP
         {
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
-            Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+14+320);
+            Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+320);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+20;
         }
         else

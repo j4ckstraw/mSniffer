@@ -184,7 +184,6 @@ void MainWindow::PrintRawdata()
             spliter = 0;
         }
         sprintf(buf,"%02X ",*data);
-        qDebug() << buf;
         text += QString(buf);
         spliter++;
         data++;
@@ -211,7 +210,7 @@ void MainWindow::PrintRawdata()
     spliter = 0;
 
     ui->textEdit_raw->setText(text);
-    qDebug()<< text;
+    // qDebug()<< text;
     rawdataFlag = true;
 }
 
@@ -265,6 +264,8 @@ void MainWindow::on_actionRestart_triggered()
     capThread.terminate();
     anaThread.terminate();
     priThread.terminate();
+    // restart clear captured packets.
+    Globe::capPacket.DeleteList();
     if(!capThread.isRunning())
         capThread.start();
     if(!anaThread.isRunning())
@@ -291,12 +292,12 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
 
 void MainWindow::SetModel()
 {
-    qDebug() << "Now in SetModel";
+    // qDebug() << "Now in SetModel";
     priThread.MuxFlag=false;
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
-        qDebug() << "setModel";
+        // qDebug() << "setModel";
     }
     else
     {

@@ -65,9 +65,9 @@ void CaptureThread::run()
         return;
     }
 
-
+    qDebug() << "Before set Filter";
     filter.setFilter(adhandle,captureFilterString);
-
+    qDebug() << "After set Filter";
     if(!Globe::capPacket.Iniflag)
     {
         Globe::capPacket.InitialList();

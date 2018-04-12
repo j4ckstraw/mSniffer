@@ -6,6 +6,7 @@
 #include "common.h"
 #include <QDebug>
 #include <QModelIndex>
+#include "filter.h"
 
 extern pcap_if_t *alldevs;
 extern int interface_selected;
@@ -162,6 +163,7 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
     }
      captureFilterString = ui->lineEdit_filter->text();
      qDebug() << captureFilterString;
+
      ready_to_selected=devicesName.indexOf(strText);
      qDebug() << ready_to_selected;
      qDebug() << strText;
