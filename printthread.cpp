@@ -144,44 +144,11 @@ void PrintPacket_on_fly(Packet *Pindex)
                 PacketModel->setData(PacketModel->index(row,6),"UNKNOWN");
                 PacketModel->setData(PacketModel->index(row,7),"UNKNOWN");
             }
-            else if (dst_port == 80) // HTTP
+            else if (dst_port == 80 || src_port == 80) // HTTP
             {
                 s=QString("HTTP");
                 PacketModel->setData(PacketModel->index(row,4),s);
 
-//                int ip_len = Pindex->IPv4_header->tlen;
-//                bool find_http = false;
-//                QString http_text = "";
-//                char *ip_pkt_data = (char*)(Pindex->IPv4_header+4*(Pindex->IPv4_header->ver_ihl&0x0f));
-//                for(int i=0;i<ip_len;++i){
-//                    //check the http request
-//                    if(!find_http && (i+3<ip_len && strncmp(ip_pkt_data+i,"GET ",strlen("GET ")) ==0 )
-//                            || (i+4<ip_len && strncmp(ip_pkt_data+i,"POST ",strlen("POST ")) == 0) ){
-//                        find_http = true;
-//                    }
-
-//                    //check the http response
-//                    if(!find_http && i+8<ip_len && strncmp(ip_pkt_data+i,"HTTP/1.1 ",strlen("HTTP/1.1 "))==0){
-//                        find_http = true;
-//                    }
-
-//                    //collect the http text
-//                    if(find_http && (isalnum(ip_pkt_data[i]) || ispunct(ip_pkt_data[i]) || \
-//                            isspace(ip_pkt_data[i]) || isprint(ip_pkt_data[i]))){
-//                        http_text += QString(ip_pkt_data[i]);
-//                    }
-//                }
-//                PacketModel->setData(PacketModel->index(row,6),http_text);
-//                char *ip_data = (char*)(Pindex->IPv4_header + 4*(Pindex->IPv4_header->ver_ihl&0x0f));
-//                qDebug()<< "SEE HERE";
-//                qDebug() << "tcp_res--host : " << ntohs(Pindex->TCP_header->tcp_res);
-
-//                qDebug() << "data offset: " << (ntohs(Pindex->TCP_header->tcp_res)>>12);
-//                char *http_data = (char*)(Pindex->TCP_header+4*(ntohs(Pindex->TCP_header->tcp_res)>>12));
-//                for (int i=0;i<10;i++)
-//                {
-//                    qDebug() << QString(ntohs(*(u_short*)(http_data+i)));
-//                }
                 char* ip_pkt_data = (char*)Pindex->TCP_header;
                 int ip_len = ntohs(Pindex->IPv4_header->tlen);
                 bool find_http = false;
@@ -206,7 +173,8 @@ void PrintPacket_on_fly(Packet *Pindex)
                         http_txt += ip_pkt_data[i];
                     }
                 }
-                qDebug() << QString(http_txt.c_str());
+                HTTP httpInfo = HTTP(QString(http_txt.c_str()));
+                qDebug() << httpInfo.httpMethod << httpInfo.httpResponse;
 
             }
             else

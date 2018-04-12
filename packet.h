@@ -4,6 +4,22 @@
 #include <pcap.h>
 #include "common.h"
 
+class HTTP
+{
+public:
+    HTTP();
+    ~HTTP();
+    HTTP(QString text);
+    QString text;
+    QString httpMethod = "";
+    QString httpHost = "";
+    QString httpConnection = "";
+    QString httpCacheControl = "";
+    QString httpUserAgent = "";
+    QString httpAccept = "";
+    QString httpResponse = "";
+};
+
 typedef struct Packet
 {
     u_long serialnum;//被捕捉序列号
