@@ -8,7 +8,7 @@ extern pcap_if_t *alldevs;
 extern int interface_selected;
 extern QStandardItemModel *PacketModel;//数据包基本信息
 
-void PrintPacket_online(Packet *Pindex);
+void PrintPacket_on_fly(Packet *Pindex);
 
 PrintThread::PrintThread()
 {
@@ -35,7 +35,7 @@ void PrintThread::run()
                 {
                     Sleep(1);
                 }
-                PrintPacket_online(Globe::capPacket.Pindex);
+                PrintPacket_on_fly(Globe::capPacket.Pindex);
                 emit Modelchanged();
                 qDebug() << "emit Modelchanged";
                 Globe::capPacket.Pindex->Pflag=true;
@@ -52,7 +52,7 @@ void PrintThread::run()
             {
                 Sleep(1);
             }
-            PrintPacket_online(Globe::capPacket.Pindex);
+            PrintPacket_on_fly(Globe::capPacket.Pindex);
             emit Modelchanged();
             qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
@@ -67,7 +67,7 @@ void PrintThread::run()
             {
                 Sleep(1);
             }
-            PrintPacket_online(Globe::capPacket.Pindex);
+            PrintPacket_on_fly(Globe::capPacket.Pindex);
             emit Modelchanged();
             qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
@@ -77,11 +77,12 @@ void PrintThread::run()
 }
 
 
-
-void PrintPacket_online(Packet *Pindex)
+void PrintPacket_on_fly(Packet *Pindex)
 {
     QString s;
-    u_short port;
+    // u_short port;
+    u_short src_port;
+    u_short dst_port;
     int row=PacketModel->rowCount();
     PacketModel->insertRow(row,QModelIndex());
 
@@ -93,7 +94,7 @@ void PrintPacket_online(Packet *Pindex)
 
     u_short k=Pindex->ether_header->ether_type;
 
-    if(k==0x0800)//IPv4
+    if(k==ETHER_TYPE_IPv4)//IPv4
     {
         if(Pindex->IPv4_header==NULL)
         {
@@ -109,7 +110,7 @@ void PrintPacket_online(Packet *Pindex)
             PacketModel->setData(PacketModel->index(row,3),s);
         }
 
-        if(Pindex->IPv4_header->proto==17)//UDP
+        if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
         {
 
             s=QString("UDP");
@@ -123,16 +124,13 @@ void PrintPacket_online(Packet *Pindex)
             }
             else
             {
-            port=ntohs(Pindex->UDP_header->sport);
-            s=QString("%1%2").arg(("源端口：")).arg(port);//源端口
-            PacketModel->setData(PacketModel->index(row,6),s);
-
-            port=ntohs(Pindex->UDP_header->dport);
-            s=QString("%1%2").arg(("目的端口：")).arg(port);//目的端口
-            PacketModel->setData(PacketModel->index(row,7),s);
+                src_port = ntohs(Pindex->UDP_header->sport);
+                dst_port = ntohs(Pindex->UDP_header->dport);
+                s = QString("%1 -> %2").arg(src_port).arg(dst_port);
+                PacketModel->setData(PacketModel->index(row,6),s);
             }
         }
-        else if(Pindex->IPv4_header->proto==6)//TCP
+        else if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//TCP
         {
             s=QString("TCP");
             PacketModel->setData(PacketModel->index(row,4),s);
@@ -145,23 +143,139 @@ void PrintPacket_online(Packet *Pindex)
             }
             else
             {
-                port=ntohs(Pindex->TCP_header->sport);
-                s=QString("%1%2").arg(("源端口：")).arg(port);//源端口
+                src_port = ntohs(Pindex->TCP_header->sport);
+                dst_port = ntohs(Pindex->TCP_header->dport);
+                s = QString("%1 -> %2").arg(src_port).arg(dst_port);
                 PacketModel->setData(PacketModel->index(row,6),s);
-
-                port=ntohs(Pindex->TCP_header->dport);
-                s=QString("%1%2").arg(("目的端口：")).arg(port);//目的端口
-                PacketModel->setData(PacketModel->index(row,7),s);
             }
         }
-        else if(Pindex->IPv4_header->proto==1)//ICMP
+        else if(Pindex->IPv4_header->proto==PROTO_TYPE_ICMP)//ICMP
         {
             s=QString("ICMP");
             PacketModel->setData(PacketModel->index(row,4),s);
 
-            s="UNKNOWN";
+//            s="UNKNOWN";
+//            PacketModel->setData(PacketModel->index(row,6),s);
+//            PacketModel->setData(PacketModel->index(row,7),s);
+            switch(Pindex->ICMP_header->type){
+            case ICMP_DEST_UNREACH:
+                switch(Pindex->ICMP_header->code)
+                {
+                case ICMP_NET_UNREACH:
+                    s = QString("Destination Net Unreachable\n");
+                    break;
+                case ICMP_HOST_UNREACH:
+                    s = QString("Destination Host Unreachable\n");
+                    break;
+                case ICMP_PROT_UNREACH:
+                    s = QString("Destination Protocol Unreachable\n");
+                    break;
+                case ICMP_PORT_UNREACH:
+                    s = QString("Destination Port Unreachable\n");
+                    break;
+                case ICMP_FRAG_NEEDED:
+                    // s = QString("Frag needed and DF set (mtu = %u)\n", info);
+                    s = QString("Frag needed and DF set ");
+                    break;
+                case ICMP_SR_FAILED:
+                    s = QString("Source Route Failed\n");
+                    break;
+                case ICMP_NET_UNKNOWN:
+                    s = QString("Destination Net Unknown\n");
+                    break;
+                case ICMP_HOST_UNKNOWN:
+                    s = QString("Destination Host Unknown\n");
+                    break;
+                case ICMP_HOST_ISOLATED:
+                    s = QString("Source Host Isolated\n");
+                    break;
+                case ICMP_NET_ANO:
+                    s = QString("Destination Net Prohibited\n");
+                    break;
+                case ICMP_HOST_ANO:
+                    s = QString("Destination Host Prohibited\n");
+                    break;
+                case ICMP_NET_UNR_TOS:
+                    s = QString("Destination Net Unreachable for Type of Service\n");
+                    break;
+                case ICMP_HOST_UNR_TOS:
+                    s = QString("Destination Host Unreachable for Type of Service\n");
+                    break;
+                case ICMP_PKT_FILTERED:
+                    s = QString("Packet filtered\n");
+                    break;
+                case ICMP_PREC_VIOLATION:
+                    s = QString("Precedence Violation\n");
+                    break;
+                case ICMP_PREC_CUTOFF:
+                    s = QString("Precedence Cutoff\n");
+                    break;
+                default:
+                    s = QString("Dest Unreachable, Bad Code: %1\n").arg(Pindex->ICMP_header->code);
+                    break;
+                }// switch code
+            case ICMP_SOURCE_QUENCH:
+                s = QString("Source Quench\n");
+                break;
+            case ICMP_REDIRECT:
+                switch(Pindex->ICMP_header->code) {
+                case ICMP_REDIR_NET:
+                    s = QString("Redirect Network");
+                    break;
+                case ICMP_REDIR_HOST:
+                    s = QString("Redirect Host");
+                    break;
+                case ICMP_REDIR_NETTOS:
+                    s = QString("Redirect Type of Service and Network");
+                    break;
+                case ICMP_REDIR_HOSTTOS:
+                    s = QString("Redirect Type of Service and Host");
+                    break;
+                default:
+                    s = QString("Redirect, Bad Code: %1").arg(Pindex->ICMP_header->code);
+                    break;
+                }// switch code
+            case ICMP_ECHO:
+                    s = QString("Echo Request\n");
+                    /* XXX ID + Seq + Data */
+                    break;
+            case ICMP_TIME_EXCEEDED:
+                switch(Pindex->ICMP_header->code) {
+                case ICMP_EXC_TTL:
+                    s = QString("Time to live exceeded\n");
+                    break;
+                case ICMP_EXC_FRAGTIME:
+                    s = QString("Frag reassembly time exceeded\n");
+                    break;
+                default:
+                    s = QString("Time exceeded, Bad Code: %1\n").arg(Pindex->ICMP_header->code);
+                    break;
+                }
+                break;
+            case ICMP_PARAMETERPROB:
+                // s = QString("Parameter problem: pointer = %1\n").arg(icp ? (ntohl(icp->un.gateway)>>24) : info);
+                s = QString("Parameter problem\n");
+                break;
+            case ICMP_TIMESTAMP:
+                s = QString("Timestamp\n");
+                /* XXX ID + Seq + 3 timestamps */
+                break;
+            case ICMP_TIMESTAMPREPLY:
+                s = QString("Timestamp Reply\n");
+                /* XXX ID + Seq + 3 timestamps */
+                break;
+            case ICMP_INFO_REQUEST:
+                s = QString("Information Request\n");
+                /* XXX ID + Seq */
+                break;
+            case ICMP_INFO_REPLY:
+                s = QString("Information Reply\n");
+                /* XXX ID + Seq */
+                break;
+            default:
+                    s = QString("Bad ICMP type: %d\n").arg(Pindex->ICMP_header->type);
+            }//switch type
             PacketModel->setData(PacketModel->index(row,6),s);
-            PacketModel->setData(PacketModel->index(row,7),s);
         }
         else
         {
@@ -170,11 +284,10 @@ void PrintPacket_online(Packet *Pindex)
             PacketModel->setData(PacketModel->index(row,6),s);
             PacketModel->setData(PacketModel->index(row,7),s);
         }
-
             s.setNum(Pindex->header.len);//包长
             PacketModel->setData(PacketModel->index(row,5),s);
-    }
-    else if(k==0x86DD)//IPv6
+    }// IPv4
+    else if(k==ETHER_TYPE_IPv6)//IPv6
     {
         s=QString("%1.%2.%3.%4.%5.%6.%7.%8.%9.%10.%11.%12.%13.%14.%15.%16").arg(Pindex->IPv6_header->source_ip.byte1).arg(Pindex->IPv6_header->source_ip.byte2).arg(Pindex->IPv6_header->source_ip.byte3).arg(Pindex->IPv6_header->source_ip.byte4).arg(Pindex->IPv6_header->source_ip.byte5).arg(Pindex->IPv6_header->source_ip.byte6).arg(Pindex->IPv6_header->source_ip.byte7).arg(Pindex->IPv6_header->source_ip.byte8).arg(Pindex->IPv6_header->source_ip.byte9).arg(Pindex->IPv6_header->source_ip.byte10).arg(Pindex->IPv6_header->source_ip.byte11).arg(Pindex->IPv6_header->source_ip.byte12).arg(Pindex->IPv6_header->source_ip.byte13).arg(Pindex->IPv6_header->source_ip.byte14).arg(Pindex->IPv6_header->source_ip.byte15).arg(Pindex->IPv6_header->source_ip.byte16);
         PacketModel->setData(PacketModel->index(row,2),s);//源IP
@@ -188,14 +301,14 @@ void PrintPacket_online(Packet *Pindex)
         PacketModel->setData(PacketModel->index(row,5),s);
 
         long t=ntohl(Pindex->IPv6_header->load_length);
-        s=QString("%1%2").arg(("有效负荷长度:")).arg(t);//报要1
+        s=QString("%1%2").arg(("payload length: ")).arg(t);//报要1
 
 
         s=QString("");//报要2
         PacketModel->setData(PacketModel->index(row,7),s);
 
-    }
-    else if(k==0x0806)//ARP
+    } //IPv6
+    else if(k==ETHER_TYPE_ARP)//ARP
     {
         s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);
         PacketModel->setData(PacketModel->index(row,2),s);//源IP
@@ -208,13 +321,13 @@ void PrintPacket_online(Packet *Pindex)
 
         if(ntohs(Pindex->ARP_header->option)==0x0001)
         {
-            s=QString(("广播"));
+            s=QString(("broadcast"));
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-            s=QString("%1 %2.%3.%4.%5 %6").arg(("谁有")).arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4).arg(("的物理地址"));//报要1
+            s=QString("%1 %2.%3.%4.%5 %6").arg(("Who has ")).arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4).arg(("的物理地址"));//报要1
             PacketModel->setData(PacketModel->index(row,6),s);
 
-            s=QString("%1 %2.%3.%4.%5").arg(("请告知")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要2
+            s=QString("%1 %2.%3.%4.%5").arg(("Tell ")).arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);//报要2
             PacketModel->setData(PacketModel->index(row,7),s);
         }
         else
@@ -229,8 +342,8 @@ void PrintPacket_online(Packet *Pindex)
            PacketModel->setData(PacketModel->index(row,7),s);
         }
 
-    }
-    else if(k==0x8035)//RARP
+    } // ARP
+    else if(k==ETHER_TYPE_RARP)//RARP
     {
         s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);
         PacketModel->setData(PacketModel->index(row,2),s);//源IP
@@ -242,13 +355,13 @@ void PrintPacket_online(Packet *Pindex)
         PacketModel->setData(PacketModel->index(row,5),s);
         if(ntohs(Pindex->ARP_header->option)==0x0003)
         {
-            s=QString(("广播"));
+            s=QString(("broadcast"));
             PacketModel->setData(PacketModel->index(row,3),s);//目的IP
 
-            s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("谁有")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16).arg(("的IP地址"));//报要1
+            s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("Who has ")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16).arg(("的IP地址"));//报要1
             PacketModel->setData(PacketModel->index(row,6),s);
 
-            s=QString("%1 %2：%3：%4：%5：%6：%7").arg(("请告知")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
+            s=QString("%1 %2：%3：%4：%5：%6：%7").arg(("Tell")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
             PacketModel->setData(PacketModel->index(row,7),s);
         }
         else
@@ -262,7 +375,7 @@ void PrintPacket_online(Packet *Pindex)
            s=QString("");//报要2
            PacketModel->setData(PacketModel->index(row,7),s);
         }
-    }
+    } //RARP
     else
     {
         s="UNKNOWN";
@@ -273,5 +386,4 @@ void PrintPacket_online(Packet *Pindex)
         PacketModel->setData(PacketModel->index(row,6),s);
         PacketModel->setData(PacketModel->index(row,7),s);
     }
-
 }

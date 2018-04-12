@@ -19,6 +19,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void PrintDetaildata(int);
+    void PrintRawdata();
 
 private slots:
     void on_actionQuit_triggered();
