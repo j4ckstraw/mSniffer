@@ -112,7 +112,6 @@ void PrintPacket_on_fly(Packet *Pindex)
 
         if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
         {
-
             s=QString("UDP");
             PacketModel->setData(PacketModel->index(row,4),s);
 
@@ -171,6 +170,13 @@ void PrintPacket_on_fly(Packet *Pindex)
 //            PacketModel->setData(PacketModel->index(row,6),s);
 //            PacketModel->setData(PacketModel->index(row,7),s);
             switch(Pindex->ICMP_header->type){
+            case ICMP_ECHO:
+                s = QString("Echo Request\n");
+                /* XXX ID + Seq + Data */
+                break;
+            case ICMP_ECHOREPLY:
+                s = QString("Echo Reply\n");
+                break;
             case ICMP_DEST_UNREACH:
                 switch(Pindex->ICMP_header->code)
                 {
@@ -248,10 +254,6 @@ void PrintPacket_on_fly(Packet *Pindex)
                     s = QString("Redirect, Bad Code: %1").arg(Pindex->ICMP_header->code);
                     break;
                 }// switch code
-            case ICMP_ECHO:
-                    s = QString("Echo Request\n");
-                    /* XXX ID + Seq + Data */
-                    break;
             case ICMP_TIME_EXCEEDED:
                 switch(Pindex->ICMP_header->code) {
                 case ICMP_EXC_TTL:
@@ -286,7 +288,7 @@ void PrintPacket_on_fly(Packet *Pindex)
                 /* XXX ID + Seq */
                 break;
             default:
-                    s = QString("Bad ICMP type: %d\n").arg(Pindex->ICMP_header->type);
+                    s = QString("Bad ICMP type: %1\n").arg(Pindex->ICMP_header->type);
             }//switch type
             PacketModel->setData(PacketModel->index(row,6),s);
         }

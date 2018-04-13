@@ -14,6 +14,8 @@
 extern u_char *dataIndex;
 QString iptos(u_long in);
 QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen);
+QString ip6tos(struct ipv6_address address);
+QString mactos(struct mac_address address);
 
 void AnalyzeEthernet();
 void AnalyzeARP();

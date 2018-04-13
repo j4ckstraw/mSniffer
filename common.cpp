@@ -1,5 +1,8 @@
 #include "common.h"
 #include "winsock2.h"
+#include "packet.h"
+
+#include <QMessageBox>
 
 Packetlist Globe::capPacket;
 
@@ -64,10 +67,18 @@ void AnalyzeIP()//分析IP报头
         }
         else if(Globe::capPacket.Index->IPv4_header->proto==6)//TCP
         {
+            //HTTP
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
             Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+20;
+
+            if(Globe::capPacket.Index->TCP_header && \
+                    (Globe::capPacket.Index->TCP_header->sport == 80 \
+                     ||  Globe::capPacket.Index->TCP_header->dport == 80))
+            {
+                Globe::capPacket.Index->Transpro=QString("HTTP");
+            }
         }
         else if(Globe::capPacket.Index->IPv4_header->proto==1)//ICMP
         {
@@ -158,4 +169,22 @@ void AnalyzeEthernet()//分析以太网头
         Globe::capPacket.Index->Netpro=QString("UNKNOWN");
         Globe::capPacket.Index->Transpro=QString("UNKNOWN");
     }
+}
+
+QString mactos(mac_address address)
+{
+    QString str = QString("(%1:%2:%3:%4:%5:%6)")\
+            .arg(address.byte1,0,16)\
+            .arg(address.byte2,0,16)\
+            .arg(address.byte3,0,16)\
+            .arg(address.byte4,0,16)\
+            .arg(address.byte5,0,16)\
+            .arg(address.byte6,0,16);
+    return str;
+}
+
+QString ip6tos(ipv6_address address)
+{
+    QMessageBox::information(0,"Info","Needed to implement");
+    return "";
 }

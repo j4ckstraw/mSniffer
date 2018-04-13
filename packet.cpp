@@ -1,5 +1,6 @@
 #include "packet.h"
 #include <QRegExp>
+#include <QDebug>
 
 HTTP::HTTP(){}
 HTTP::~HTTP(){}
@@ -64,4 +65,107 @@ QString analyzeHttpPacket(struct Packet *Pindex)
         }
     }
     return QString(http_txt.c_str());
+}
+
+IP::~IP(){}
+
+IP::IP(ip_header *ih)
+{
+    ip_hdr = ih;
+    ver = QString::number((ntohs(ip_hdr->ver_ihl)&0xf000)>>12);
+    // qDebug() << "Version1: "<< ver;
+    hdr_len =QString::number((ntohs(ip_hdr->ver_ihl)&0x0f00)>>8);
+    // qDebug() << "Header len: "<< hdr_len;
+    tos = QString::number(ntohs(ip_hdr->tos));
+//    tlen = QString::number(ip_hdr->tlen);
+//    qDebug() << "Total Len1: "<< tlen;
+    tlen = QString::number(ntohs(ip_hdr->tlen));
+//    qDebug() << "Total Len2: "<< tlen;
+    flags = QString::number((ntohs(ip_hdr->flags_fo)&0xe000)>>13);
+    ttl = QString::number(ip_hdr->ttl);
+//    qDebug()<< "TTL1: " << ttl;
+//    ttl = QString::number(ntohs(ip_hdr->ttl));
+//    qDebug() << "TTL2: " << ttl;
+    proto = QString::number(ip_hdr->proto);
+    src = QString("%1.%2.%3.%4")\
+            .arg(ip_hdr->saddr.byte1)\
+            .arg(ip_hdr->saddr.byte2)\
+            .arg(ip_hdr->saddr.byte3)\
+            .arg(ip_hdr->saddr.byte4);
+    dst =  QString("%1.%2.%3.%4")\
+            .arg(ip_hdr->daddr.byte1)\
+            .arg(ip_hdr->daddr.byte2)\
+            .arg(ip_hdr->daddr.byte3)\
+            .arg(ip_hdr->daddr.byte4);
+    crc = QString::number(ip_hdr->crc);
+    ident = QString::number(ip_hdr->identification);
+    qDebug() << "############# IP INFO #############";
+    qDebug() << "Version: " << ver;
+    qDebug() << "Header len: "<< hdr_len;
+    qDebug() << "Type of service： " << tos;
+    qDebug() << "total len: " << tlen;
+    qDebug() << "flags : "<< flags;
+    qDebug() <<"TTL: "<<ttl;
+    qDebug() <<"Protocol: " << proto;
+    qDebug() <<"Source: "<< src;
+    qDebug() << "Destination: " <<dst;
+    qDebug() << "CRC: " << crc;
+    qDebug() << "Identical: " << ident;
+}
+
+TCP::~TCP()
+{
+
+}
+
+TCP::TCP(tcp_header *th)
+{
+    tcp_hdr = th;
+    src_port = QString::number(ntohs(tcp_hdr->sport));
+    dst_port = QString::number(ntohs(tcp_hdr->dport));
+    seq_num = QString::number(ntohs(tcp_hdr->seq));
+    ack_num = QString::number(ntohs(tcp_hdr->ack));
+    data_offset = QString::number((ntohs(tcp_hdr->tcp_res)&0xf000)>>12);
+    flags = ntohs(tcp_hdr->tcp_res)&0x003f;
+    URG = flags & 0x0020;
+    ACK = flags & 0x0010;
+    PSH = flags & 0x0008;
+    RST = flags & 0x0004;
+    SYN = flags & 0x0002;
+    FIN = flags & 0x0001;
+    window_size = QString::number(ntohs(tcp_hdr->windsize));
+    crc = QString::number(ntohs(tcp_hdr->crc));
+    urgp = QString(ntohs(tcp_hdr->urgp));
+
+    qDebug() << "############# TCP INFO #############";
+    qDebug() << "Src port : "<< src_port;
+    qDebug() << "Dst port: " << dst_port;
+    qDebug() << "seq number : "<< seq_num;
+    qDebug() << "ack number : " << ack_num;
+    qDebug() << "data offset: " << data_offset;
+    qDebug() << "flags : " << flags;
+    qDebug() << QString("URG:%1,ACK:%2,PSH:%3,RST:%4,SYN:%5,FIN:%6;").arg(URG).arg(ACK).arg(PSH).arg(RST).arg(SYN).arg(FIN);
+    qDebug() << "Window size: " << window_size;
+    qDebug() << "Checksum : "<< crc;
+    qDebug() << "Urg pointer: "<< urgp;
+}
+
+UDP::~UDP()
+{
+
+}
+
+UDP::UDP(udp_header *uh)
+{
+    udp_hdr = uh;
+    src_port = QString::number(ntohs(udp_hdr->sport));
+    dst_port = QString::number(ntohs(udp_hdr->dport));
+    length = QString::number(ntohs(udp_hdr->len));
+    crc = QString::number(ntohs(udp_hdr->crc));
+
+    qDebug() << "############# UDP INFO #############";
+    qDebug() << "Src port : "<< src_port;
+    qDebug() << "Dst port: " << dst_port;
+    qDebug() << "Length: "<< length;
+    qDebug() << "Checksum: "<< crc;
 }

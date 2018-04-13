@@ -6,6 +6,66 @@
 
 QString analyzeHttpPacket(struct Packet * Pindex);
 
+class IP
+{
+public:
+    IP();
+    ~IP();
+    struct ip_header *ip_hdr;
+    IP(struct ip_header *ih);
+
+    QString ver;
+    QString hdr_len;
+    QString tos;
+    QString tlen;
+    QString flags;
+    QString ttl;
+    QString proto;
+    QString src;
+    QString dst;
+    QString crc;
+    QString ident;
+};
+
+class TCP
+{
+public:
+    TCP();
+    ~TCP();
+    struct tcp_header *tcp_hdr;
+    TCP(struct tcp_header *th);
+
+    QString src_port;
+    QString dst_port;
+    QString seq_num;
+    QString ack_num;
+    QString data_offset;
+    u_short flags;
+    u_short URG;
+    u_short ACK;
+    u_short PSH;
+    u_short RST;
+    u_short SYN;
+    u_short FIN;
+    QString window_size;
+    QString crc;
+    QString urgp;
+};
+
+class UDP
+{
+public:
+    UDP();
+    ~UDP();
+    struct udp_header *udp_hdr;
+    UDP(struct udp_header *uh);
+
+    QString src_port;
+    QString dst_port;
+    QString length;
+    QString crc;
+};
+
 class HTTP
 {
 public:
@@ -21,6 +81,8 @@ public:
     QString httpAccept = "";
     QString httpResponse = "";
 };
+
+
 
 typedef struct Packet
 {

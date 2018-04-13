@@ -98,25 +98,14 @@ void MainWindow::PrintDetaildata(int sernum)
     rootItem->appendRow(frameItem);
 
     /* Ethernet Info */
-    QString eth_src = QString("(%1:%2:%3:%4:%5:%6)")\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte1,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte2,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte3,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte4,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte5,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_shost.byte6,0,16);
-    QString eth_dst = QString("(%1:%2:%3:%4:%5:%6)")\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte1,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte2,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte3,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte4,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte5,0,16)\
-            .arg(Globe::capPacket.PF->ether_header->ether_dhost.byte6,0,16);
+    QString eth_src = mactos(Globe::capPacket.PF->ether_header->ether_shost);
+    QString eth_dst = mactos(Globe::capPacket.PF->ether_header->ether_dhost);
     QString type = QString(Globe::capPacket.PF->ether_header->ether_type);
     QString proto = QString(Globe::capPacket.PF->Netpro);
 
     strText = QString("Ethernet II, Src: %1, Dst: %2").arg(eth_src,eth_dst);
     QStandardItem *etherItem = new QStandardItem(strText);
+    childItems.clear();
     item = new QStandardItem(QString("Destination: %1").arg(eth_dst));
     childItems.push_back(item);
     item = new QStandardItem(QString("Source: %1").arg(eth_src));
@@ -128,20 +117,127 @@ void MainWindow::PrintDetaildata(int sernum)
 
     /* Network Info */
 
-
-    strText = "Network Info";
-    QStandardItem *networkItem = new QStandardItem(strText);
-    rootItem->appendRow(networkItem);
+    if(Globe::capPacket.PF->Netpro.compare("IPv4")==0)   // IPv4
+    {
+        IP ipInfo = IP(Globe::capPacket.PF->IPv4_header);
+        strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver,ipInfo.src,ipInfo.dst);
+        QStandardItem *networkItem = new QStandardItem(strText);
+        childItems.clear();
+        item = new QStandardItem(QString("Version: %1").arg(ipInfo.ver));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Header Length: %1").arg(ipInfo.hdr_len));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Totol Length: %1").arg(ipInfo.tlen));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Identification: %1").arg(ipInfo.ident));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Flags: %1").arg(ipInfo.flags));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Time to live： %1").arg(ipInfo.ttl));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Protocol: %1").arg(ipInfo.proto));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Header checksum: %1").arg(ipInfo.crc));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Source: %1").arg(ipInfo.src));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Destination: %1").arg(ipInfo.dst));
+        childItems.push_back(item);
+        networkItem->appendRows(childItems);
+        rootItem->appendRow(networkItem);
+    }
+    else if(Globe::capPacket.PF->Netpro.compare("IPv6")==0) // IPv6
+    {
+        strText = "Internet Protocol Version 6";
+        QStandardItem *networkItem = new QStandardItem(strText);
+        rootItem->appendRow(networkItem);
+    }
+    else
+    {
+        strText = "Network Info";
+        QStandardItem *networkItem = new QStandardItem(strText);
+        rootItem->appendRow(networkItem);
+    }
 
     /* Transport Info */
-    strText = "Transport layer";
-    QStandardItem *transItem = new QStandardItem(strText);
-    rootItem->appendRow(transItem);
+    if(Globe::capPacket.PF->Netpro.compare("TCP")==0) // TCP
+    {
+        TCP tcpInfo = TCP(Globe::capPacket.PF->TCP_header);
+
+        strText = QString("Transmission Control Protocol, Src Port: %1, Dst Port: %2, Seq: %3")\
+                .arg(tcpInfo.src_port,tcpInfo.dst_port,tcpInfo.seq_num);
+        QStandardItem *transItem = new QStandardItem(strText);
+        childItems.clear();
+        item = new QStandardItem(QString("Source Port: %1").arg(tcpInfo.src_port));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Destination Port: %1").arg(tcpInfo.dst_port));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Sequence Number: %1").arg(tcpInfo.seq_num));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Acknowledgment number: %1").arg(tcpInfo.ack_num));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Header length: %1").arg(4*tcpInfo.data_offset.toInt()));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Flags: %1").arg(tcpInfo.flags));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Window size value: %1").arg(tcpInfo.window_size));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Urgent pointer: %1").arg(tcpInfo.urgp));
+        childItems.push_back(item);
+        transItem->appendRows(childItems);
+        rootItem->appendRow(transItem);
+    } // end TCP
+    else if(Globe::capPacket.PF->Netpro.compare("UDP")==0) // UDP
+    {
+        UDP udpInfo = UDP(Globe::capPacket.PF->UDP_header);
+
+        strText = QString("User Datagram Protocol, Src Port: %1, Dst Port: %2")\
+                .arg(udpInfo.src_port,udpInfo.dst_port);
+        QStandardItem *transItem = new QStandardItem(strText);
+        childItems.clear();
+        item = new QStandardItem(QString("Source Port: %1").arg(udpInfo.src_port));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Destination Port: %1").arg(udpInfo.dst_port));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Length: %1").arg(udpInfo.length));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Checksum: %1").arg(udpInfo.crc));
+        childItems.push_back(item);
+        transItem->appendRows(childItems);
+        rootItem->appendRow(transItem);
+    }// end UDP
+    else    // default
+    {
+        strText = "UNKNOWN Transport Layer";
+        QStandardItem *transItem = new QStandardItem(strText);
+        rootItem->appendRow(transItem);
+    } // end default
 
     /* Application Layer Info */
-    strText = "Application Layer";
-    QStandardItem *appItem = new QStandardItem(strText);
-    rootItem->appendRow(appItem);
+    if(Globe::capPacket.PF->Netpro.compare("HTTP")==0) // HTTP
+    {
+        strText = "Hypertext Transfer Protocol";
+        QStandardItem *appItem = new QStandardItem(strText);
+
+        QString http_txt = analyzeHttpPacket(Globe::capPacket.Pindex);
+        HTTP httpInfo = HTTP(http_txt);
+        childItems.clear();
+        if (!httpInfo.httpMethod.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpMethod)));
+        if (!httpInfo.httpResponse.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpResponse)));
+        if (!httpInfo.httpHost.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
+        if (!httpInfo.httpConnection.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
+        if (!httpInfo.httpUserAgent.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpUserAgent)));
+        if (!httpInfo.httpAccept.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpAccept)));
+        appItem->appendRows(childItems);
+        rootItem->appendRow(appItem);
+    }// end HTTP
+    else  // default
+    {
+        strText = "Application Layer";
+        QStandardItem *appItem = new QStandardItem(strText);
+        rootItem->appendRow(appItem);
+    }// end default
+
 
     ui->treeView_detail->setModel(DetailModel);
 }
