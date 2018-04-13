@@ -161,18 +161,15 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
         else strText=s;
         qDebug() << strText;
     }
-     captureFilterString = ui->lineEdit_filter->text();
-     qDebug() << captureFilterString;
-
+     // captureFilterString = ui->lineEdit_filter->text();
      ready_to_selected=devicesName.indexOf(strText);
-     qDebug() << ready_to_selected;
-     qDebug() << strText;
-     qDebug()<<"OVER";
      return;
 }
 
 void interfacesDialog::on_buttonBox_accepted()
 {
     interface_selected = ready_to_selected;
+    captureFilterString = ui->lineEdit_filter->text();
+    qDebug() << "Capture filter: " << captureFilterString;
     qDebug() << "SELECTED INTERFACE: " << interface_selected;
 }
