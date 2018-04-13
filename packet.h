@@ -4,6 +4,8 @@
 #include <pcap.h>
 #include "common.h"
 
+QString analyzeHttpPacket(struct Packet * Pindex);
+
 class HTTP
 {
 public:
