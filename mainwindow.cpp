@@ -8,9 +8,10 @@
 #include "capturethread.h"
 #include "analysethread.h"
 #include <QTableView>
+#include <QFile>
+#include <QFileDialog>
 
 QStandardItemModel *PacketModel = new QStandardItemModel();//数据包基本信息;
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -29,18 +30,18 @@ MainWindow::MainWindow(QWidget *parent) :
     /*数据包基本信息联机显示列表*/
 #define SIZEOF_HEADER 8
     PacketModel->setColumnCount(SIZEOF_HEADER);
-    PacketModel->setHeaderData(0,Qt::Horizontal,QString("   No.   "));
-    PacketModel->setHeaderData(1,Qt::Horizontal,QString("       Time       "));
-    PacketModel->setHeaderData(2,Qt::Horizontal,QString("                   Source                   "));
-    PacketModel->setHeaderData(3,Qt::Horizontal,QString("                  Destionation                  "));
-    PacketModel->setHeaderData(4,Qt::Horizontal,QString("    Protocol    "));
-    PacketModel->setHeaderData(5,Qt::Horizontal,QString("    Length    "));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("          Information1            "));
-    PacketModel->setHeaderData(7,Qt::Horizontal,QString("          Information2            "));
+    PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
+    PacketModel->setHeaderData(1,Qt::Horizontal,QString("Time"));
+    PacketModel->setHeaderData(2,Qt::Horizontal,QString("Source"));
+    PacketModel->setHeaderData(3,Qt::Horizontal,QString("Destionation"));
+    PacketModel->setHeaderData(4,Qt::Horizontal,QString("Protocol"));
+    PacketModel->setHeaderData(5,Qt::Horizontal,QString("Length"));
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("Info"));
+    PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
     ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tableView_packet->setModel(PacketModel);
 
-    ui->tableView_packet->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    // ui->tableView_packet->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableView_packet->setEditTriggers(QTableView::NoEditTriggers);
     ui->tableView_packet->verticalHeader()->setVisible(false);
     ui->tableView_packet->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -78,14 +79,14 @@ void MainWindow::PrintDetaildata(int sernum)
 
     ui->treeView_detail->setHeaderHidden(true);
     QStandardItemModel *DetailModel = new QStandardItemModel();
-    QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
-    DetailModel->appendRow(rootItem);
+    // QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
+    // DetailModel->appendRow(rootItem);
 
     /* Frame Info */
-    QString arrivedTime = Globe::capPacket.PF->timestamp;
-    QString devName = Globe::capPacket.PF->NAname;
-    QString packLen = QString::number(Globe::capPacket.PF->header.len);
-    QString frameProto = Globe::capPacket.PF->Netpro;
+    QString arrivedTime = Globe::capPacket.OIndex->timestamp;
+    QString devName = Globe::capPacket.OIndex->NAname;
+    QString packLen = QString::number(Globe::capPacket.OIndex->header.len);
+    QString frameProto = Globe::capPacket.OIndex->Netpro;
     strText = QString("Frame: %1 bytes captured on %2").arg(packLen,devName);
     QStandardItem *frameItem = new QStandardItem(strText);
     item = new QStandardItem(QString("Interface name: %1").arg(devName));
@@ -95,13 +96,14 @@ void MainWindow::PrintDetaildata(int sernum)
     item = new QStandardItem(QString("Arrival time: %1").arg(arrivedTime));
     childItems.push_back(item);
     frameItem->appendRows(childItems);
-    rootItem->appendRow(frameItem);
+    //rootItem->appendRow(frameItem);
+    DetailModel->appendRow(frameItem);
 
     /* Ethernet Info */
-    QString eth_src = mactos(Globe::capPacket.PF->ether_header->ether_shost);
-    QString eth_dst = mactos(Globe::capPacket.PF->ether_header->ether_dhost);
-    QString type = QString(Globe::capPacket.PF->ether_header->ether_type);
-    QString proto = QString(Globe::capPacket.PF->Netpro);
+    QString eth_src = mactos(Globe::capPacket.OIndex->ether_header->ether_shost);
+    QString eth_dst = mactos(Globe::capPacket.OIndex->ether_header->ether_dhost);
+    QString type = QString(Globe::capPacket.OIndex->ether_header->ether_type);
+    QString proto = QString(Globe::capPacket.OIndex->Netpro);
 
     strText = QString("Ethernet II, Src: %1, Dst: %2").arg(eth_src,eth_dst);
     QStandardItem *etherItem = new QStandardItem(strText);
@@ -113,13 +115,14 @@ void MainWindow::PrintDetaildata(int sernum)
     item = new QStandardItem(QString("Type: %1 (%2)").arg(type).arg(proto));
     childItems.push_back(item);
     etherItem->appendRows(childItems);
-    rootItem->appendRow(etherItem);
+    // rootItem->appendRow(etherItem);
+    DetailModel->appendRow(etherItem);
 
     /* Network Info */
 
-    if(Globe::capPacket.PF->Netpro.compare("IPv4")==0)   // IPv4
+    if(Globe::capPacket.OIndex->Netpro.compare("IPv4")==0)   // IPv4
     {
-        IP ipInfo = IP(Globe::capPacket.PF->IPv4_header);
+        IP ipInfo = IP(Globe::capPacket.OIndex->IPv4_header);
         strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver,ipInfo.src,ipInfo.dst);
         QStandardItem *networkItem = new QStandardItem(strText);
         childItems.clear();
@@ -144,25 +147,28 @@ void MainWindow::PrintDetaildata(int sernum)
         item = new QStandardItem(QString("Destination: %1").arg(ipInfo.dst));
         childItems.push_back(item);
         networkItem->appendRows(childItems);
-        rootItem->appendRow(networkItem);
+        // rootItem->appendRow(networkItem);
+        DetailModel->appendRow(networkItem);
     }
-    else if(Globe::capPacket.PF->Netpro.compare("IPv6")==0) // IPv6
+    else if(Globe::capPacket.OIndex->Netpro.compare("IPv6")==0) // IPv6
     {
         strText = "Internet Protocol Version 6";
         QStandardItem *networkItem = new QStandardItem(strText);
-        rootItem->appendRow(networkItem);
+        // rootItem->appendRow(networkItem);
+        DetailModel->appendRow(networkItem);
     }
     else
     {
         strText = "Network Info";
         QStandardItem *networkItem = new QStandardItem(strText);
-        rootItem->appendRow(networkItem);
+        // rootItem->appendRow(networkItem);
+        // DetailModel->appendRow(networkItem);
     }
 
     /* Transport Info */
-    if(Globe::capPacket.PF->Netpro.compare("TCP")==0) // TCP
+    if(Globe::capPacket.OIndex->Netpro.compare("TCP")==0) // TCP
     {
-        TCP tcpInfo = TCP(Globe::capPacket.PF->TCP_header);
+        TCP tcpInfo = TCP(Globe::capPacket.OIndex->TCP_header);
 
         strText = QString("Transmission Control Protocol, Src Port: %1, Dst Port: %2, Seq: %3")\
                 .arg(tcpInfo.src_port,tcpInfo.dst_port,tcpInfo.seq_num);
@@ -185,11 +191,12 @@ void MainWindow::PrintDetaildata(int sernum)
         item = new QStandardItem(QString("Urgent pointer: %1").arg(tcpInfo.urgp));
         childItems.push_back(item);
         transItem->appendRows(childItems);
-        rootItem->appendRow(transItem);
+        // rootItem->appendRow(transItem);
+        DetailModel->appendRow(transItem);
     } // end TCP
-    else if(Globe::capPacket.PF->Netpro.compare("UDP")==0) // UDP
+    else if(Globe::capPacket.OIndex->Netpro.compare("UDP")==0) // UDP
     {
-        UDP udpInfo = UDP(Globe::capPacket.PF->UDP_header);
+        UDP udpInfo = UDP(Globe::capPacket.OIndex->UDP_header);
 
         strText = QString("User Datagram Protocol, Src Port: %1, Dst Port: %2")\
                 .arg(udpInfo.src_port,udpInfo.dst_port);
@@ -204,17 +211,19 @@ void MainWindow::PrintDetaildata(int sernum)
         item = new QStandardItem(QString("Checksum: %1").arg(udpInfo.crc));
         childItems.push_back(item);
         transItem->appendRows(childItems);
-        rootItem->appendRow(transItem);
+        // rootItem->appendRow(transItem);
+        DetailModel->appendRow(transItem);
     }// end UDP
     else    // default
     {
         strText = "UNKNOWN Transport Layer";
         QStandardItem *transItem = new QStandardItem(strText);
-        rootItem->appendRow(transItem);
+        // rootItem->appendRow(transItem);
+        // DetailModel->appendRow(transItem);
     } // end default
 
     /* Application Layer Info */
-    if(Globe::capPacket.PF->Netpro.compare("HTTP")==0) // HTTP
+    if(Globe::capPacket.OIndex->Netpro.compare("HTTP")==0) // HTTP
     {
         strText = "Hypertext Transfer Protocol";
         QStandardItem *appItem = new QStandardItem(strText);
@@ -229,13 +238,15 @@ void MainWindow::PrintDetaildata(int sernum)
         if (!httpInfo.httpUserAgent.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpUserAgent)));
         if (!httpInfo.httpAccept.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpAccept)));
         appItem->appendRows(childItems);
-        rootItem->appendRow(appItem);
+        //rootItem->appendRow(appItem);
+        DetailModel->appendRow(appItem);
     }// end HTTP
     else  // default
     {
         strText = "Application Layer";
         QStandardItem *appItem = new QStandardItem(strText);
-        rootItem->appendRow(appItem);
+        // rootItem->appendRow(appItem);
+        // DetailModel->appendRow(appItem);
     }// end default
 
 
@@ -246,7 +257,7 @@ void MainWindow::PrintRawdata()
 {
     rawdataFlag = false;
     int i,k,l;
-    u_char *data=(u_char *)Globe::capPacket.PF->pkt_data;
+    u_char *data=(u_char *)Globe::capPacket.OIndex->pkt_data;
     QString text;
     int spliter;
     char *c;
@@ -257,7 +268,7 @@ void MainWindow::PrintRawdata()
     spliter = 0;
 
     //handle the hex content
-    for(i=0;i<Globe::capPacket.PF->header.len;i++)
+    for(i=0;i<Globe::capPacket.OIndex->header.len;i++)
     {
         if (spliter == 8) text += "  ";
         if (spliter == 16)
@@ -362,6 +373,17 @@ void MainWindow::on_actionRestart_triggered()
     priThread.terminate();
     // restart clear captured packets.
     Globe::capPacket.DeleteList();
+    PacketModel->clear();
+    PacketModel->setColumnCount(SIZEOF_HEADER);
+    PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
+    PacketModel->setHeaderData(1,Qt::Horizontal,QString("Time"));
+    PacketModel->setHeaderData(2,Qt::Horizontal,QString("Source"));
+    PacketModel->setHeaderData(3,Qt::Horizontal,QString("Destionation"));
+    PacketModel->setHeaderData(4,Qt::Horizontal,QString("Protocol"));
+    PacketModel->setHeaderData(5,Qt::Horizontal,QString("Length"));
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("Info"));
+    PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
+    this->SetModel();
     if(!capThread.isRunning())
         capThread.start();
     if(!anaThread.isRunning())
@@ -393,12 +415,11 @@ void MainWindow::SetModel()
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
-        // qDebug() << "setModel";
     }
-    else
-    {
-        QMessageBox::about(NULL,"", "в");
-    }
+//    else
+//    {
+//        QMessageBox::about(NULL,"", "в");
+//    }
     priThread.MuxFlag=true;
 }
 
@@ -426,10 +447,10 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
         // int sernum = ui->tableView_packet->childAt(row,0)->data().toInt();
 
 
-        Globe::capPacket.PF=Globe::capPacket.Head;//
-        while(Globe::capPacket.PF->serialnum!=sernum)
+        Globe::capPacket.OIndex=Globe::capPacket.Head;//
+        while(Globe::capPacket.OIndex->serialnum!=sernum)
         {
-            Globe::capPacket.PF=Globe::capPacket.PF->Next;
+            Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
         }
 
         PrintRawdata();//

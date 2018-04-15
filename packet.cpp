@@ -64,7 +64,11 @@ QString analyzeHttpPacket(struct Packet *Pindex)
             http_txt += ip_pkt_data[i];
         }
     }
-    return QString(http_txt.c_str());
+    Pindex->Netpro = "HTTP";
+    if (find_http)
+        return QString(http_txt.c_str());
+    else
+        return QString("");
 }
 
 IP::~IP(){}

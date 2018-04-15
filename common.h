@@ -13,6 +13,7 @@
 
 extern u_char *dataIndex;
 QString iptos(u_long in);
+QString iptos(struct ip_address address);
 QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen);
 QString ip6tos(struct ipv6_address address);
 QString mactos(struct mac_address address);
@@ -20,6 +21,22 @@ QString mactos(struct mac_address address);
 void AnalyzeEthernet();
 void AnalyzeARP();
 void AnalyzeIP();
+
+/* ARP / RARP structs and definitions */
+#define ARPOP_REQUEST  1       /* ARP request.  */
+#define ARPOP_REPLY    2       /* ARP reply.  */
+/* Some OSes have different names, or don't define these at all */
+#define ARPOP_RREQUEST 3       /* RARP request.  */
+#define ARPOP_RREPLY   4       /* RARP reply.  */
+/*Additional parameters as per http://www.iana.org/assignments/arp-parameters*/
+#define ARPOP_DRARPREQUEST 5   /* DRARP request.  */
+#define ARPOP_DRARPREPLY 6     /* DRARP reply.  */
+#define ARPOP_DRARPERROR 7     /* DRARP error.  */
+#define ARPOP_IREQUEST 8       /* Inverse ARP (RFC 1293) request.  */
+#define ARPOP_IREPLY   9       /* Inverse ARP reply.  */
+#define ATMARPOP_NAK   10      /* ATMARP NAK.  */
+
+
 
 #define ETHER_TYPE_IPv4 0x0800
 #define ETHER_TYPE_IPv6 0x86DD
@@ -173,7 +190,7 @@ typedef struct arp_header{
     u_short protocal_type;              //协议类型(16 bits)
     u_char  hwadd_len;                  //硬件地址长度(8 bit)
     u_char  proadd_len;                 //协议地址长度(8 bit)
-    u_short option;                     //操作类型(16 bits)
+    u_short opcode;                     //操作类型(16 bits)
     mac_address snether_address;        // 发送端以太网地址(48 bits)
     ip_address  sip_address;              //发送端IP地址(32 bits)
     mac_address dnether_address;       //目的以太网地址(48 bits)

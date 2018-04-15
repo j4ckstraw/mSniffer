@@ -153,7 +153,7 @@ typedef struct Packet
 
 typedef struct Packetlist
 {
-    Packet *Head,*Tail,*Index,*Pindex,*Tindex,*PF;//头指针、尾指针、分析指针、实时打印指针、倒数第二个指针（删除节点用）、离线打印指针
+    Packet *Head,*Tail,*Index,*Pindex,*Tindex,*OIndex;//头指针、尾指针、分析指针、实时打印指针、倒数第二个指针（删除节点用）、离线打印指针
 
     bool Iniflag;//是否已初始化标志
     u_long Countpk;//捕获的数据包计数
@@ -177,7 +177,7 @@ typedef struct Packetlist
             Index=Head;
             Pindex=Head;
             Tindex=Tail;
-            PF=Head;
+            OIndex=Head;
         }
         else
         {
@@ -201,7 +201,7 @@ typedef struct Packetlist
         Index=NULL;
         Pindex=NULL;
         Tindex=Head;
-        PF=Head;
+        OIndex=Head;
         Iniflag=true;
     }
 
@@ -257,7 +257,7 @@ typedef struct Packetlist
                 Index=NULL;
                 Pindex=NULL;
                 Tindex=Head;
-                PF=Head;
+                OIndex=Head;
             }
         }
 

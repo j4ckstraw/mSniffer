@@ -16,6 +16,51 @@ QString iptos(u_long in)
     return output;
 }
 
+QString iptos(struct ip_address address)
+{
+    QString str = QString("%1.%2.%3.%4")\
+            .arg(address.byte1)\
+            .arg(address.byte2)\
+            .arg(address.byte3)\
+            .arg(address.byte4);
+    return str;
+}
+
+QString mactos(mac_address address)
+{
+    QString str = QString("(%1:%2:%3:%4:%5:%6)")\
+            .arg(address.byte1,0,16)\
+            .arg(address.byte2,0,16)\
+            .arg(address.byte3,0,16)\
+            .arg(address.byte4,0,16)\
+            .arg(address.byte5,0,16)\
+            .arg(address.byte6,0,16);
+    return str;
+}
+
+QString ip6tos(ipv6_address address)
+{
+    QString str = QString("%1%2:%3%4:%5%6:%7%8:%9%10:%11%12:%13%14:%15%16")\
+            .arg(address.byte1,0,16)\
+            .arg(address.byte2,0,16)\
+            .arg(address.byte3,0,16)\
+            .arg(address.byte4,0,16)\
+            .arg(address.byte5,0,16)\
+            .arg(address.byte6,0,16)\
+            .arg(address.byte7,0,16)\
+            .arg(address.byte8,0,16)\
+            .arg(address.byte9,0,16)\
+            .arg(address.byte10,0,16)\
+            .arg(address.byte11,0,16)\
+            .arg(address.byte12,0,16)\
+            .arg(address.byte13,0,16)\
+            .arg(address.byte14,0,16)\
+            .arg(address.byte15,0,16)\
+            .arg(address.byte16,0,16);
+
+    return str;
+}
+
 
 #ifndef __MINGW32__ /* Cygnus doesn't have IPv6 */
 QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen)
@@ -77,7 +122,8 @@ void AnalyzeIP()//分析IP报头
                     (Globe::capPacket.Index->TCP_header->sport == 80 \
                      ||  Globe::capPacket.Index->TCP_header->dport == 80))
             {
-                Globe::capPacket.Index->Transpro=QString("HTTP");
+                if (analyzeHttpPacket(Globe::capPacket.Pindex).compare("") != 0)
+                    Globe::capPacket.Index->Transpro=QString("HTTP");
             }
         }
         else if(Globe::capPacket.Index->IPv4_header->proto==1)//ICMP
@@ -171,20 +217,3 @@ void AnalyzeEthernet()//分析以太网头
     }
 }
 
-QString mactos(mac_address address)
-{
-    QString str = QString("(%1:%2:%3:%4:%5:%6)")\
-            .arg(address.byte1,0,16)\
-            .arg(address.byte2,0,16)\
-            .arg(address.byte3,0,16)\
-            .arg(address.byte4,0,16)\
-            .arg(address.byte5,0,16)\
-            .arg(address.byte6,0,16);
-    return str;
-}
-
-QString ip6tos(ipv6_address address)
-{
-    QMessageBox::information(0,"Info","Needed to implement");
-    return "";
-}
