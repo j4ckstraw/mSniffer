@@ -7,10 +7,13 @@
 #include "printthread.h"
 #include "capturethread.h"
 #include "analysethread.h"
+#include "offlineanalysethread.h"
 #include <QTableView>
 #include <QFile>
 #include <QFileDialog>
 
+
+extern QString file_name;
 QStandardItemModel *PacketModel = new QStandardItemModel();//数据包基本信息;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //数据包主要信息显示的样式设置为黄蓝间隔
     ui->tableView_packet->setAlternatingRowColors(true);
     ui->tableView_packet->setStyleSheet("QTableView{background-color: rgb(250, 250, 115);"
-                                          "alternate-background-color: rgb(141, 163, 215);}");
+                                        "alternate-background-color: rgb(141, 163, 215);}");
     Globe::capPacket.Iniflag=false;
 
     // toggle buttons state
@@ -58,16 +61,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionRestart->setEnabled(false);
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
+    connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
     connect(&priThread,SIGNAL(Modelchanged()),this,SLOT(SetModel()));
+
 
 }
 
 MainWindow::~MainWindow()
 {
-    capThread.terminate();
-    anaThread.terminate();
-    priThread.terminate();
+    if(!capThread.isFinished())
+        capThread.terminate();
+    if(!anaThread.isFinished())
+        anaThread.terminate();
+    if(!priThread.isFinished())
+        priThread.terminate();
+    if(!offThread.isFinished())
+        offThread.terminate();
     delete ui;
 }
 
@@ -410,16 +420,16 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
 
 void MainWindow::SetModel()
 {
-    // qDebug() << "Now in SetModel";
+    qDebug() << "Now in SetModel";
     priThread.MuxFlag=false;
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
     }
-//    else
-//    {
-//        QMessageBox::about(NULL,"", "в");
-//    }
+    //    else
+    //    {
+    //        QMessageBox::about(NULL,"", "в");
+    //    }
     priThread.MuxFlag=true;
 }
 
@@ -457,3 +467,20 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
         PrintDetaildata(sernum);//
     }
 }
+
+void MainWindow::on_actionOpen_triggered()
+{
+    pcap_t *fp;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    QString filter = "All files(*.*);;Wireshark /tcpdump/...-pcap(*.dmp.gz;*.dmp;*.cap.gz;*.cap;*.pcap.gz;*.pcap);;Cinco NetXRay,Sniffer(Windows)(*.caz.gz;*.caz;*.cap.gz;*.cap)";
+    file_name = QFileDialog::getOpenFileName(this, "Open a file...","",filter);
+    // QMessageBox::information(this,"information","Need to be implement");
+    qDebug() << "Open file: " << file_name;
+    if(!offThread.isRunning())
+        offThread.start();
+    if(!anaThread.isRunning())
+        anaThread.start();
+    if(!priThread.isRunning())
+        priThread.start();
+}
+

@@ -97,7 +97,7 @@ void AnalyzeIP();
 class Globe
 {
 public:
-    static struct Packetlist capPacket;
+    static struct PacketList capPacket;
 };
 
 enum class HEADER_T{

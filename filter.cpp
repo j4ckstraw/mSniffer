@@ -14,6 +14,7 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
 {
     pcap_if_t *d;
     int i;
+    struct bpf_program fcode;
     packet_filter = inputFilter;
     adhandle = inputAdhandle;
     if(!inputAdhandle) fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n");
@@ -55,5 +56,6 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
         // pcap_freealldevs(alldevs);
         return -1;
     }
+    pcap_freecode(&fcode);
     qDebug() << "Set Filter : " << packet_filter;
 }

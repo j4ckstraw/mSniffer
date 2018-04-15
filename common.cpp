@@ -4,7 +4,7 @@
 
 #include <QMessageBox>
 
-Packetlist Globe::capPacket;
+PacketList Globe::capPacket;
 
 QString iptos(u_long in)
 {

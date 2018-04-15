@@ -6,6 +6,7 @@
 #include "analysethread.h"
 #include "printthread.h"
 #include "interfacesdialog.h"
+#include "offlineanalysethread.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,8 @@ private slots:
 
     void on_tableView_packet_clicked(const QModelIndex &index);
 
+    void on_actionOpen_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -47,6 +50,7 @@ private:
     CaptureThread capThread;//捕获数据包线程
     AnalyseThread anaThread;//分析数据包线程
     PrintThread priThread;//实时打印数据包信息线程
+    OfflineAnalyseThread offThread;
     int comboindex;//选择过滤方式下拉表框
     // MyGraph *Piegraph;//输出统计饼图窗口
 };

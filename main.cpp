@@ -8,12 +8,13 @@
 pcap_if_t *alldevs;
 int interface_selected;
 u_char *dataIndex;
+QString file_name;
 QString captureFilterString;
 QString displayFilterString;
 
 int main(int argc, char *argv[])
 {
-    char errbuf[PCAP_ERRBUF_SIZE+1];
+    char errbuf[PCAP_ERRBUF_SIZE];
     QApplication a(argc, argv);
     MainWindow w;
 

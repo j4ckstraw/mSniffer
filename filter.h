@@ -12,7 +12,6 @@ public:
 private:
     pcap_t *adhandle;
     QString packet_filter;
-    struct bpf_program fcode;
     u_int netmask;
 };
 

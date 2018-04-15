@@ -24,8 +24,10 @@ void PrintThread::stop()
 
 void PrintThread::run()
 {
+    qDebug() << "Print Thread start";
     while(!stopped)
     {
+        qDebug() << "In Print thread no stopped";
         Globe::capPacket.Pindex=Globe::capPacket.Head;
         while(Globe::capPacket.Pindex!=Globe::capPacket.Index )
         {
@@ -37,24 +39,27 @@ void PrintThread::run()
                 }
                 PrintPacket_on_fly(Globe::capPacket.Pindex);
                 emit Modelchanged();
-                // qDebug() << "emit Modelchanged";
+                qDebug() << "emit Modelchanged";
                 Globe::capPacket.Pindex->Pflag=true;
             }
             Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
         }
         Sleep(1);
     }
-    while(Globe::capPacket.Pindex!=Globe::capPacket.Index)//停止信号发送后可能还有未打印的数据包
+    qDebug()<< "Print thread outof while";
+    while(Globe::capPacket.Pindex && Globe::capPacket.Pindex!=Globe::capPacket.Index)//停止信号发送后可能还有未打印的数据包
     {
         if(!Globe::capPacket.Pindex->Pflag && Globe::capPacket.Pindex->Aflag)
         {
+            qDebug() << "Print thread another while";
             while(!MuxFlag)//等待打印完成
             {
                 Sleep(1);
+                qDebug() << "Sleep";
             }
             PrintPacket_on_fly(Globe::capPacket.Pindex);
             emit Modelchanged();
-            // qDebug() << "emit Modelchanged";
+            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
         Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
@@ -69,11 +74,14 @@ void PrintThread::run()
             }
             PrintPacket_on_fly(Globe::capPacket.Pindex);
             emit Modelchanged();
-            // qDebug() << "emit Modelchanged";
+            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
     }
     stopped = false;
+    emit Modelchanged();
+    qDebug() << "emit Modelchanged";
+    return ;
 }
 
 
@@ -86,7 +94,9 @@ void PrintPacket_on_fly(Packet *Pindex)
     int row=PacketModel->rowCount();
     PacketModel->insertRow(row,QModelIndex());
 
+    qDebug() << "In PrintPacket_on_fly";
     s.setNum(Pindex->serialnum);//序列号
+    qDebug() << "Serianum is : " << Pindex->serialnum;
     PacketModel->setData(PacketModel->index(row,0),s);
 
     s=Pindex->timestamp;//捕获时间
