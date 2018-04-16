@@ -84,8 +84,7 @@ void CaptureThread::run()
         {
             Globe::capPacket.Countpk++;
             Globe::capPacket.AddPacket();
-            // Globe::capPacket.Tail->Initial();
-            Globe::capPacket.Tail = new Packet();
+            Globe::capPacket.Tail->Initial();
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
             Globe::capPacket.Tail->NAname=d->name;

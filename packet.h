@@ -84,9 +84,8 @@ public:
 
 
 
-class Packet
+typedef struct Packet
 {
-public:
     u_long serialnum;//被捕捉序列号
     //u_long len;//数据包长度
     //int captime;//被捕捉时间
@@ -99,6 +98,7 @@ public:
     struct ip_header *IPv4_header;//IPv4首部
     struct ipv6_header *IPv6_header;//IPv6首部
     struct arp_header *ARP_header;//ARP首部
+
     struct udp_header *UDP_header;//UDP首部
     struct tcp_header *TCP_header;//TCP首部
     struct icmp_header *ICMP_header;//ICMP首部
@@ -118,15 +118,42 @@ public:
     u_int Netlimit;//网络层协议末尾
     u_int Translimit;//传输层协议末尾
 
-    explicit Packet();
-    ~Packet();
-    void copy(struct pcap_pkthdr *cheader,u_char *data);
-};
+    void Initial()
+    {
+        serialnum=0;
+        //header=NULL;
+        //pkt_data=NULL;
+        Next=NULL;
+        ether_header=NULL;
+        IPv4_header=NULL;
+        IPv6_header=NULL;
+        ARP_header=NULL;
+        UDP_header=NULL;
+        TCP_header=NULL;
+        ICMP_header=NULL;
+        Netpro=QString("None");
+        Transpro=QString("None");
+        SIP=QString("UNKNOWN");
+        DIP=QString("UNKNOWN");
+        SPort=QString("UNKNOWN");
+        DPort=QString("UNKNOWN");
+        Pflag=false;
+        Aflag=false;
+    }
 
-class PacketList
+    void copy(struct pcap_pkthdr *cheader,u_char *data)
+    {
+        header.len=cheader->len;
+        header.caplen=cheader->caplen;
+        header.ts.tv_sec=cheader->ts.tv_sec;
+        header.ts.tv_usec=cheader->ts.tv_usec;
+        memcpy(pkt_data,data,header.len);
+    }
+}Packet;
+
+typedef struct PacketList
 {
-public:
-    struct Packet *Head,*Tail,*Index,*Pindex,*Tindex,*OIndex;//头指针、尾指针、分析指针、实时打印指针、倒数第二个指针（删除节点用）、离线打印指针
+    Packet *Head,*Tail,*Index,*Pindex,*Tindex,*OIndex;//头指针、尾指针、分析指针、实时打印指针、倒数第二个指针（删除节点用）、离线打印指针
 
     bool Iniflag;//是否已初始化标志
     u_long Countpk;//捕获的数据包计数
@@ -139,11 +166,129 @@ public:
     u_long IPv6_Countpk;//捕获的IPv6数据包计数
     //Packetlist capPacket;//捕获的数据包链表
 
-    void AddPacket();
-    void InitialList();
-    void DeleteNode();
-    void DeleteList();
-};
+    void AddPacket()
+    {
+        Packet *p=new Packet;
+        p->Initial();
+        if(Head==NULL)
+        {
+            Head=p;
+            Tail=p;
+            Index=Head;
+            Pindex=Head;
+            Tindex=Tail;
+            OIndex=Head;
+        }
+        else
+        {
+            Tindex=Tail;
+            Tail->Next=p;
+            Tail=Tail->Next;
+        }
+    }
+    void InitialList()
+    {
+        Countpk=0;
+        UDP_Countpk=0;
+        TCP_Countpk=0;
+        ICMP_Countpk=0;
+        ARP_Countpk=0;
+        RARP_Countpk=0;
+        IPv4_Countpk=0;
+        IPv6_Countpk=0;
+        Head=NULL;
+        Tail=NULL;
+        Index=NULL;
+        Pindex=NULL;
+        Tindex=Head;
+        OIndex=Head;
+        Iniflag=true;
+    }
+
+    void DeleteNode()
+    {
+        if(Tail!=Tindex)
+        {
+            if(Tail!=NULL)
+            {
+                delete Tail;
+                Tail=Tindex;
+                Tindex=Head;
+                if(Tail!=Head)
+                {
+                    while(Tindex->Next!=Tail)
+                    {
+                        Tindex=Tindex->Next;
+                    }
+                }
+            }
+            else
+                Tail=Head;
+        }
+        else
+        {
+            if(Tindex!=Head)
+            {
+                if(Tail!=NULL)
+                {
+                    Tindex=Head;
+                    while(Tindex->Next!=Tail)
+                    {
+                        Tindex=Tindex->Next;
+                    }
+                    delete Tail;
+                    Tail=Tindex;
+                    Tail->Next=NULL;
+                    Tindex=Head;
+                    while(Tindex->Next!=Tail)
+                    {
+                        Tindex=Tindex->Next;
+                    }
+                }
+                else
+                    Tail=Head;
+            }
+            else//只剩下一个节点
+            {
+                if(Head!=NULL)
+                    delete Head;
+                Head=NULL;
+                Tail=NULL;
+                Index=NULL;
+                Pindex=NULL;
+                Tindex=Head;
+                OIndex=Head;
+            }
+        }
+
+    }
+
+    void DeleteList()
+    {
+        while(Head!=Tail)
+        {
+            /*Index=Head;
+            Head=Head->Next;
+            //Index->DeleteNode();
+            delete Index;*/
+            DeleteNode();
+        }
+
+        Tail=NULL;
+        Head=NULL;
+        Index=NULL;
+        Tindex=NULL;
+        Countpk=0;
+        UDP_Countpk=0;
+        TCP_Countpk=0;
+        ICMP_Countpk=0;
+        ARP_Countpk=0;
+        RARP_Countpk=0;
+        IPv4_Countpk=0;
+        IPv6_Countpk=0;
+        Iniflag=false;
+    }
+}PacketList;
 
 
 #endif // PACKET_H

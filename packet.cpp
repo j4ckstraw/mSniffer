@@ -30,164 +30,46 @@ HTTP::HTTP(QString text)
     if (httpResponseReg.indexIn(text) > -1)       httpResponse = httpResponseReg.cap(0);
 }
 
-Packet::Packet()
+
+QString analyzeHttpPacket(struct Packet *Pindex)
 {
-    serialnum=0;
-    //header=NULL;
-    //pkt_data=NULL;
-    Next=NULL;
-    ether_header=NULL;
-    IPv4_header=NULL;
-    IPv6_header=NULL;
-    ARP_header=NULL;
-    UDP_header=NULL;
-    TCP_header=NULL;
-    ICMP_header=NULL;
-    Netpro=QString("None");
-    Transpro=QString("None");
-    SIP=QString("UNKNOWN");
-    DIP=QString("UNKNOWN");
-    SPort=QString("UNKNOWN");
-    DPort=QString("UNKNOWN");
-    Pflag=false;
-    Aflag=false;
-}
+    char* ip_pkt_data = (char*)Pindex->IPv4_header;
+    int ip_len = ntohs(Pindex->IPv4_header->tlen);
+    bool find_http = false;
+    std::string http_txt = "";
+    for(int i=0;i<ip_len;++i){
 
-Packet::~Packet(){}
+        //check the http request
+        if(!find_http
+                && ((i+3<ip_len && strncmp(ip_pkt_data+i,"GET ",strlen("GET ")) ==0 )
+                || (i+4<ip_len && strncmp(ip_pkt_data+i,"HEAD ",strlen("HEAD ")) == 0 )
+                || (i+4<ip_len && strncmp(ip_pkt_data+i,"POST ",strlen("POST ")) == 0 )
+                || (i+3<ip_len && strncmp(ip_pkt_data+i,"PUT ",strlen("PUT ")) == 0 )
+                || (i+6<ip_len && strncmp(ip_pkt_data+i,"OPTION ",strlen("OPTION ")) == 0 ))
+                )
+        {
+            find_http = true;
+        }
 
-void Packet::copy(struct pcap_pkthdr *cheader,u_char *data)
-{
-    header.len=cheader->len;
-    header.caplen=cheader->caplen;
-    header.ts.tv_sec=cheader->ts.tv_sec;
-    header.ts.tv_usec=cheader->ts.tv_usec;
-    memcpy(pkt_data,data,header.len);
-}
+        //check the http response
+        if(!find_http && i+8<ip_len && strncmp(ip_pkt_data+i,"HTTP/1.1 ",strlen("HTTP/1.1 "))==0)
+        {
+            find_http = true;
+        }
 
-
-void PacketList::AddPacket()
-{
-    Packet *p = new Packet();
-    if(Head==NULL)
-    {
-        Head=p;
-        Tail=p;
-        Index=Head;
-        Pindex=Head;
-        Tindex=Tail;
-        OIndex=Head;
+        //collect the http text
+        if(find_http && (isalnum(ip_pkt_data[i]) || ispunct(ip_pkt_data[i]) || \
+                         isspace(ip_pkt_data[i]) || isprint(ip_pkt_data[i])))
+        {
+            http_txt += ip_pkt_data[i];
+        }
     }
+    Pindex->Netpro = "HTTP";
+    if (find_http)
+        return QString(http_txt.c_str());
     else
-    {
-        Tindex=Tail;
-        Tail->Next=p;
-        Tail=Tail->Next;
-    }
+        return QString("");
 }
-void PacketList::InitialList()
-{
-    Countpk=0;
-    UDP_Countpk=0;
-    TCP_Countpk=0;
-    ICMP_Countpk=0;
-    ARP_Countpk=0;
-    RARP_Countpk=0;
-    IPv4_Countpk=0;
-    IPv6_Countpk=0;
-    Head=NULL;
-    Tail=NULL;
-    Index=NULL;
-    Pindex=NULL;
-    Tindex=Head;
-    OIndex=Head;
-    Iniflag=true;
-}
-
-void PacketList::DeleteNode()
-{
-    if(Tail!=Tindex)
-    {
-        if(Tail!=NULL)
-        {
-            delete Tail;
-            Tail=Tindex;
-            Tindex=Head;
-            if(Tail!=Head)
-            {
-                while(Tindex->Next!=Tail)
-                {
-                    Tindex=Tindex->Next;
-                }
-            }
-        }
-        else
-            Tail=Head;
-    }
-    else
-    {
-        if(Tindex!=Head)
-        {
-            if(Tail!=NULL)
-            {
-                Tindex=Head;
-                while(Tindex->Next!=Tail)
-                {
-                    Tindex=Tindex->Next;
-                }
-                delete Tail;
-                Tail=Tindex;
-                Tail->Next=NULL;
-                Tindex=Head;
-                while(Tindex->Next!=Tail)
-                {
-                    Tindex=Tindex->Next;
-                }
-            }
-            else
-                Tail=Head;
-        }
-        else//只剩下一个节点
-        {
-            if(Head!=NULL)
-                delete Head;
-            Head=NULL;
-            Tail=NULL;
-            Index=NULL;
-            Pindex=NULL;
-            Tindex=Head;
-            OIndex=Head;
-        }
-    }
-
-}
-
-void PacketList::DeleteList()
-{
-    while(Head!=Tail)
-    {
-        /*Index=Head;
-        Head=Head->Next;
-        //Index->DeleteNode();
-        delete Index;*/
-        DeleteNode();
-    }
-
-    Tail=NULL;
-    Head=NULL;
-    Index=NULL;
-    Tindex=NULL;
-    Countpk=0;
-    UDP_Countpk=0;
-    TCP_Countpk=0;
-    ICMP_Countpk=0;
-    ARP_Countpk=0;
-    RARP_Countpk=0;
-    IPv4_Countpk=0;
-    IPv6_Countpk=0;
-    Iniflag=false;
-}
-
-
 
 IP::~IP(){}
 
@@ -199,15 +81,15 @@ IP::IP(ip_header *ih)
     hdr_len =QString::number((ntohs(ip_hdr->ver_ihl)&0x0f00)>>8);
     // qDebug() << "Header len: "<< hdr_len;
     tos = QString::number(ntohs(ip_hdr->tos));
-    //    tlen = QString::number(ip_hdr->tlen);
-    //    qDebug() << "Total Len1: "<< tlen;
+//    tlen = QString::number(ip_hdr->tlen);
+//    qDebug() << "Total Len1: "<< tlen;
     tlen = QString::number(ntohs(ip_hdr->tlen));
-    //    qDebug() << "Total Len2: "<< tlen;
+//    qDebug() << "Total Len2: "<< tlen;
     flags = QString::number((ntohs(ip_hdr->flags_fo)&0xe000)>>13);
     ttl = QString::number(ip_hdr->ttl);
-    //    qDebug()<< "TTL1: " << ttl;
-    //    ttl = QString::number(ntohs(ip_hdr->ttl));
-    //    qDebug() << "TTL2: " << ttl;
+//    qDebug()<< "TTL1: " << ttl;
+//    ttl = QString::number(ntohs(ip_hdr->ttl));
+//    qDebug() << "TTL2: " << ttl;
     proto = QString::number(ip_hdr->proto);
     src = QString("%1.%2.%3.%4")\
             .arg(ip_hdr->saddr.byte1)\
@@ -290,46 +172,4 @@ UDP::UDP(udp_header *uh)
     qDebug() << "Dst port: " << dst_port;
     qDebug() << "Length: "<< length;
     qDebug() << "Checksum: "<< crc;
-}
-
-
-
-QString analyzeHttpPacket(struct Packet *Pindex)
-{
-    char* ip_pkt_data = (char*)Pindex->IPv4_header;
-    int ip_len = ntohs(Pindex->IPv4_header->tlen);
-    bool find_http = false;
-    std::string http_txt = "";
-    for(int i=0;i<ip_len;++i){
-
-        //check the http request
-        if(!find_http
-                && ((i+3<ip_len && strncmp(ip_pkt_data+i,"GET ",strlen("GET ")) ==0 )
-                    || (i+4<ip_len && strncmp(ip_pkt_data+i,"HEAD ",strlen("HEAD ")) == 0 )
-                    || (i+4<ip_len && strncmp(ip_pkt_data+i,"POST ",strlen("POST ")) == 0 )
-                    || (i+3<ip_len && strncmp(ip_pkt_data+i,"PUT ",strlen("PUT ")) == 0 )
-                    || (i+6<ip_len && strncmp(ip_pkt_data+i,"OPTION ",strlen("OPTION ")) == 0 ))
-                )
-        {
-            find_http = true;
-        }
-
-        //check the http response
-        if(!find_http && i+8<ip_len && strncmp(ip_pkt_data+i,"HTTP/1.1 ",strlen("HTTP/1.1 "))==0)
-        {
-            find_http = true;
-        }
-
-        //collect the http text
-        if(find_http && (isalnum(ip_pkt_data[i]) || ispunct(ip_pkt_data[i]) || \
-                         isspace(ip_pkt_data[i]) || isprint(ip_pkt_data[i])))
-        {
-            http_txt += ip_pkt_data[i];
-        }
-    }
-    Pindex->Netpro = "HTTP";
-    if (find_http)
-        return QString(http_txt.c_str());
-    else
-        return QString("");
 }

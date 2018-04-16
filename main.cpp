@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     // release resources before return;
     int e = a.exec();
-    Globe::capPacket.DeleteList();
+    // Globe::capPacket.DeleteList();
     pcap_freealldevs(alldevs);
     return e;
 }
