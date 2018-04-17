@@ -8,14 +8,14 @@ namespace Ui {
     class interfacesDialog;
 }
 
-class interfacesDialog : public QDialog
+class InterfacesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit interfacesDialog(QWidget *parent);
-    explicit interfacesDialog();
-    ~interfacesDialog();
+    explicit InterfacesDialog(QWidget *parent);
+    explicit InterfacesDialog();
+    ~InterfacesDialog();
 
 private slots:
     void on_buttonBox_accepted();

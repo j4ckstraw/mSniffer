@@ -9,6 +9,7 @@
 #include "filter.h"
 
 extern pcap_if_t *alldevs;
+extern char errbuf[PCAP_ERRBUF_SIZE];
 extern int interface_selected;
 extern QString captureFilterString;
 
@@ -16,14 +17,14 @@ static QList<QString> devicesName;
 static int ready_to_selected;
 
 
-interfacesDialog::interfacesDialog(QWidget *parent) :
+InterfacesDialog::InterfacesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
 }
 
-interfacesDialog::interfacesDialog() :
+InterfacesDialog::InterfacesDialog() :
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
@@ -49,6 +50,18 @@ interfacesDialog::interfacesDialog() :
 #endif
     int adaper_count=0;
     QString strText;
+
+    //    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
+    //    {
+    //        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+    //        return 0;
+    //    }
+
+    if(pcap_findalldevs(&alldevs, errbuf) == -1)
+    {
+        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+        // return -1;
+    }
 
     for(d=alldevs; d; d=d->next,adaper_count++)
     {
@@ -127,17 +140,19 @@ interfacesDialog::interfacesDialog() :
     }
     ui->treeView->setModel(AdaperInfo);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
 //    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 //    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
 }// interfacesDialog()
 
-interfacesDialog::~interfacesDialog()
+InterfacesDialog::~InterfacesDialog()
 {
+    pcap_freealldevs(alldevs);
     delete ui;
 }
 
-void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
+void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
 {
     QString strText;
 
@@ -166,7 +181,7 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
      return;
 }
 
-void interfacesDialog::on_buttonBox_accepted()
+void InterfacesDialog::on_buttonBox_accepted()
 {
     interface_selected = ready_to_selected;
     captureFilterString = ui->lineEdit_filter->text();

@@ -46,7 +46,7 @@ private:
     int selnum;//选中的数据包编号
     volatile bool startFlag;//开始抓包标志
     volatile bool rawdataFlag;//正在输出Rawdata标志
-    interfacesDialog *chosedialog;//选择网卡对话框
+    InterfacesDialog *chosedialog;//选择网卡对话框
     CaptureThread capThread;//捕获数据包线程
     AnalyseThread anaThread;//分析数据包线程
     PrintThread priThread;//实时打印数据包信息线程

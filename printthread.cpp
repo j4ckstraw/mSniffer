@@ -358,27 +358,13 @@ void PrintPacket_on_fly(Packet *Pindex)
                     + iptos(Pindex->ARP_header->dip_address) \
                     + QString(" Tell ") \
                     + iptos(Pindex->ARP_header->sip_address);
-//            s=QString("%1 %2.%3.%4.%5? %1 %2.%3.%4.%5").arg("Who has ")\
-//                    .arg(Pindex->ARP_header->dip_address.byte1)\
-//                    .arg(Pindex->ARP_header->dip_address.byte2)\
-//                    .arg(Pindex->ARP_header->dip_address.byte3)\
-//                    .arg(Pindex->ARP_header->dip_address.byte4)\
-//                    .arg(("Tell "))\
-//                    .arg(Pindex->ARP_header->sip_address.byte1)\
-//                    .arg(Pindex->ARP_header->sip_address.byte2)\
-//                    .arg(Pindex->ARP_header->sip_address.byte3)\
-//                    .arg(Pindex->ARP_header->sip_address.byte4); //报要1
+
             PacketModel->setData(PacketModel->index(row,6),s);
         }
         else if(ntohs(Pindex->ARP_header->opcode)==ARPOP_REPLY)  // ARP reply
         {
             s = iptos(Pindex->ARP_header->dip_address);
-//            s=QString("%1.%2.%3.%4")\
-//                    .arg(Pindex->ARP_header->dip_address.byte1)\
-//                    .arg(Pindex->ARP_header->dip_address.byte2)\
-//                    .arg(Pindex->ARP_header->dip_address.byte3)\
-//                    .arg(Pindex->ARP_header->dip_address.byte4);
-            PacketModel->setData(PacketModel->index(row,3),s);//目的IP
+            PacketModel->setData(PacketModel->index(row,3),s); //目的IP
 
             s = iptos(Pindex->ARP_header->sip_address)\
                     + QString(" is at ")\

@@ -12,8 +12,8 @@
 #include <QFile>
 #include <QFileDialog>
 
+QString file_name;
 
-extern QString file_name;
 QStandardItemModel *PacketModel = new QStandardItemModel();//数据包基本信息;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,9 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     selnum=-1;
     rawdataFlag=false;
     priThread.MuxFlag=true;
-
-    chosedialog = new interfacesDialog();
-
 
     /*数据包基本信息联机显示列表*/
 #define SIZEOF_HEADER 8
@@ -59,6 +56,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionPause->setEnabled(false);
     ui->actionStop->setEnabled(false);
     ui->actionRestart->setEnabled(false);
+
+    chosedialog = new InterfacesDialog();
+//    chosedialog->show();
+    //this->estModel(false);
+    chosedialog->setModal(false);
+    chosedialog->exec();
+    chosedialog->activateWindow();
+
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
@@ -333,16 +338,31 @@ void MainWindow::PrintRawdata()
 
 void MainWindow::on_actionQuit_triggered()
 {
-    capThread.terminate();
-    anaThread.terminate();
-    priThread.terminate();
+    if(capThread.isRunning())
+        capThread.terminate();
+    if(anaThread.isRunning())
+        anaThread.terminate();
+    if(priThread.isRunning())
+        priThread.terminate();
+    if(offThread.isRunning())
+        offThread.terminate();
+
+    chosedialog->close();
     this->close();
 }
 
 void MainWindow::on_actionRefresh_Interfaces_triggered()
 {
-    interfacesDialog *intDia = new interfacesDialog();
-    intDia->show();
+    if(!chosedialog)
+    {
+        chosedialog = new InterfacesDialog();
+        chosedialog->show();
+    }
+    else
+    {
+        chosedialog->show();
+        chosedialog->activateWindow();
+    }
 }
 
 void MainWindow::on_actionStart_triggered()
@@ -405,11 +425,11 @@ void MainWindow::on_actionRestart_triggered()
 void MainWindow::on_actionPause_triggered()
 {
     // toggle buttons state
-    ui->actionStart->setEnabled(true);
-    ui->actionPause->setEnabled(false);
-    ui->actionStop->setEnabled(true);
-    ui->actionRestart->setEnabled(false);
-    // capThread.pause();
+//    ui->actionStart->setEnabled(true);
+//    ui->actionPause->setEnabled(false);
+//    ui->actionStop->setEnabled(true);
+//    ui->actionRestart->setEnabled(false);
+
     QMessageBox::information(this,"Pause info","this function not implement");
 }
 

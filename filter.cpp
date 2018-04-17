@@ -58,4 +58,5 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
     }
     pcap_freecode(&fcode);
     qDebug() << "Set Filter : " << packet_filter;
+    return 0;
 }
