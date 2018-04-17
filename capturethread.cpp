@@ -28,11 +28,11 @@ void CaptureThread::run()
     pcap_if_t *d;
     char errbuf[PCAP_ERRBUF_SIZE];
     int i;
-    u_int netmask;
+    // u_int netmask;
 
     Filter filter;
     int res;
-    clock_t capTime;
+    // clock_t capTime;
 
     /* Jump to the selected adapter */
     for(d=alldevs, i=0; i< interface_selected;d=d->next, i++);

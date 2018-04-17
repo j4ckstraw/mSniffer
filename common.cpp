@@ -188,7 +188,7 @@ void AnalyzeEthernet()//分析以太网头
     local_tv_sec = Globe::capPacket.Index->header.ts.tv_sec;
     ltime=localtime(&local_tv_sec);
     strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
-    sprintf(Globe::capPacket.Index->timestamp,"%s%c%d",timestr,'.',Globe::capPacket.Index->header.ts.tv_usec);
+    sprintf(Globe::capPacket.Index->timestamp,"%s%c%ld",timestr,'.',Globe::capPacket.Index->header.ts.tv_usec);
 
 
     //u_short k

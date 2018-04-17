@@ -17,7 +17,7 @@ int Filter::setFilter(pcap_t *inputAdhandle, QString inputFilter)
     struct bpf_program fcode;
     packet_filter = inputFilter;
     adhandle = inputAdhandle;
-    if(!inputAdhandle) fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n");
+    if(!inputAdhandle) fprintf(stderr,"\nUnable to open the adapter.is not supported by WinPcap\n");
 
     /* Check the link layer. We support only Ethernet for simplicity. */
     if(pcap_datalink(adhandle) != DLT_EN10MB)

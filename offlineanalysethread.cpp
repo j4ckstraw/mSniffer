@@ -2,10 +2,13 @@
 #include "filter.h"
 #include "common.h"
 #include <QMessageBox>
+#include <QStandardItemModel>
 #include <QString>
 #include <QDebug>
 
 extern QString file_name;
+extern QStandardItemModel *PacketModel;
+void PrintPacket_on_fly(Packet *Pindex);
 
 OfflineAnalyseThread::OfflineAnalyseThread()
 {
@@ -58,11 +61,12 @@ void OfflineAnalyseThread::run()
             qDebug() << "Valid file";
             Globe::capPacket.Countpk++;
             Globe::capPacket.AddPacket();
-            // Globe::capPacket.Tail->Initial();
-            Globe::capPacket.Tail = new Packet();
+            Globe::capPacket.Tail->Initial();
+            // Globe::capPacket.Tail = Packet;
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
             Globe::capPacket.Tail->NAname="FILE";
+            qDebug() << QString("res is %1").arg(res);
             //printf("%d CaptureTime=%d, len:%d\n",Globe::capPacket.Tail->serialnum,Globe::capPacket.Tail->captime,Globe::capPacket.Tail->header->len);
         }
         else if(res == -1)
@@ -83,9 +87,10 @@ void OfflineAnalyseThread::run()
             stopped = true;
         }
     }
+
     stopped = false;
     emit OfflineStopped();   //告知主界面捕获已停止，可以停止分析线程
-    qDebug() << "Stop offline capture";
+    qDebug() << "Stop offline capture, emit OfflinesStopped";
     pcap_close(adhandle);
     return ;
 }

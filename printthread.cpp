@@ -29,7 +29,7 @@ void PrintThread::run()
     {
         qDebug() << "In Print thread no stopped";
         Globe::capPacket.Pindex=Globe::capPacket.Head;
-        while(Globe::capPacket.Pindex!=Globe::capPacket.Index )
+        while(Globe::capPacket.Pindex!=Globe::capPacket.Index)
         {
             if(!Globe::capPacket.Pindex->Pflag && Globe::capPacket.Pindex->Aflag)
             {

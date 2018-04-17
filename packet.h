@@ -82,8 +82,6 @@ public:
     QString httpResponse = "";
 };
 
-
-
 typedef struct Packet
 {
     u_long serialnum;//被捕捉序列号

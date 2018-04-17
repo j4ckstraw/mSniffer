@@ -86,7 +86,7 @@ void MainWindow::PrintDetaildata(int sernum)
     QString strText;
     QStandardItem *item;
     QList<QStandardItem *> childItems;
-
+    qDebug() << QString("serial number:%1").arg(sernum);
     ui->treeView_detail->setHeaderHidden(true);
     QStandardItemModel *DetailModel = new QStandardItemModel();
     // QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
@@ -170,7 +170,7 @@ void MainWindow::PrintDetaildata(int sernum)
     else
     {
         strText = "Network Info";
-        QStandardItem *networkItem = new QStandardItem(strText);
+        // QStandardItem *networkItem = new QStandardItem(strText);
         // rootItem->appendRow(networkItem);
         // DetailModel->appendRow(networkItem);
     }
@@ -226,8 +226,8 @@ void MainWindow::PrintDetaildata(int sernum)
     }// end UDP
     else    // default
     {
-        strText = "UNKNOWN Transport Layer";
-        QStandardItem *transItem = new QStandardItem(strText);
+        // strText = "UNKNOWN Transport Layer";
+        // QStandardItem *transItem = new QStandardItem(strText);
         // rootItem->appendRow(transItem);
         // DetailModel->appendRow(transItem);
     } // end default
@@ -254,7 +254,7 @@ void MainWindow::PrintDetaildata(int sernum)
     else  // default
     {
         strText = "Application Layer";
-        QStandardItem *appItem = new QStandardItem(strText);
+        // QStandardItem *appItem = new QStandardItem(strText);
         // rootItem->appendRow(appItem);
         // DetailModel->appendRow(appItem);
     }// end default
@@ -266,10 +266,10 @@ void MainWindow::PrintDetaildata(int sernum)
 void MainWindow::PrintRawdata()
 {
     rawdataFlag = false;
-    int i,k,l;
+    unsigned int i,k,l;
     u_char *data=(u_char *)Globe::capPacket.OIndex->pkt_data;
     QString text;
-    int spliter;
+    unsigned int spliter;
     char *c;
     char buf[4];
     char textbuf[16+2];
@@ -426,10 +426,10 @@ void MainWindow::SetModel()
     {
         ui->tableView_packet->setModel(PacketModel);
     }
-    //    else
-    //    {
-    //        QMessageBox::about(NULL,"", "в");
-    //    }
+    else
+    {
+        qDebug() << QString("PacketModel count: %1").arg(PacketModel->rowCount());
+    }
     priThread.MuxFlag=true;
 }
 
@@ -447,13 +447,13 @@ void MainWindow::StopAnalyze()
 
 void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
-    if(!priThread.isRunning())//
+    if(!priThread.isRunning())
     {
-        QModelIndex index=ui->tableView_packet->currentIndex();
+        // QModelIndex index=ui->tableView_packet->currentIndex();
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
         // int sernum=ui->tableView_packet->index(row,0).data().toInt();
-        int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
+        unsigned int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
         // int sernum = ui->tableView_packet->childAt(row,0)->data().toInt();
 
 
@@ -470,8 +470,8 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 
 void MainWindow::on_actionOpen_triggered()
 {
-    pcap_t *fp;
-    char errbuf[PCAP_ERRBUF_SIZE];
+    // pcap_t *fp;
+    // char errbuf[PCAP_ERRBUF_SIZE];
     QString filter = "All files(*.*);;Wireshark /tcpdump/...-pcap(*.dmp.gz;*.dmp;*.cap.gz;*.cap;*.pcap.gz;*.pcap);;Cinco NetXRay,Sniffer(Windows)(*.caz.gz;*.caz;*.cap.gz;*.cap)";
     file_name = QFileDialog::getOpenFileName(this, "Open a file...","",filter);
     // QMessageBox::information(this,"information","Need to be implement");
