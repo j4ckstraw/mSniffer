@@ -14,7 +14,7 @@ extern char errbuf[PCAP_ERRBUF_SIZE];
 extern int interface_selected;
 extern QString captureFilterString;
 
-static QList<QString> devicesName;
+QList<QString> devicesName;
 static int ready_to_selected;
 
 
@@ -156,7 +156,6 @@ void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     QString s=index.data().toString();
-    qDebug() << s;
     if(s.compare("Available Adapers")==0)
     {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -182,19 +181,20 @@ void InterfacesDialog::on_buttonBox_accepted()
     captureFilterString = ui->lineEdit_filter->text();
     qDebug() << "Capture filter: " << captureFilterString;
     qDebug() << "SELECTED INTERFACE: " << interface_selected;
+    qDebug() << "SELECTED DEVICE NAME: " << devicesName.at(interface_selected);
 
-    qDebug() << "See HERE";
-    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
-    {
-        qDebug() << "############ start ###########";
-        qDebug() << interf.humanReadableName();
-        qDebug() << interf.name();
-        qDebug() << interf.hardwareAddress();
-        qDebug() << "############# end ##############";
-    }
+//    qDebug() << "See HERE";
+//    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
+//    {
+//        qDebug() << "############ start ###########";
+//        qDebug() << interf.humanReadableName();
+//        qDebug() << interf.name();
+//        qDebug() << interf.hardwareAddress();
+//        qDebug() << "############# end ##############";
+//    }
 
-    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
-    qDebug() << "interface name: ",
-    qDebug() << inf.humanReadableName();
+//    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
+//    qDebug() << "interface name: ",
+//    qDebug() << inf.humanReadableName();
 
 }

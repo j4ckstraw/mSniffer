@@ -25,6 +25,11 @@ void DetailPrintThread::run()
     QStandardItem *item;
     QList<QStandardItem *> childItems;
     // qDebug() << QString("serial number:%1").arg(sernum);
+    if(!Globe::capPacket.OIndex || !Globe::capPacket.OIndex->Aflag || !Globe::capPacket.OIndex->Pflag)
+    {
+        QMessageBox::warning(0,"Warning","DetailPrintThread: OIndex is null or not Analysed yet");
+        return ;
+    }
     u_short sernum = Globe::capPacket.OIndex->serialnum;
     qDebug() << QString("Serial number(in DetailPrintThread): %1").arg(sernum);
     QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));

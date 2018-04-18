@@ -90,7 +90,6 @@ void PrintPacket_on_fly(Packet *Pindex)
     PacketModel->insertRow(row,QModelIndex());
 
     s.setNum(Pindex->serialnum);//序列号
-    qDebug() << "Serianum is : " << Pindex->serialnum;
     PacketModel->setData(PacketModel->index(row,0),s);
 
     s=Pindex->timestamp;//捕获时间

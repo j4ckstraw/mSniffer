@@ -6,9 +6,9 @@
 
 // global vars
 pcap_if_t *alldevs;
+u_char *dataIndex;
 char errbuf[PCAP_ERRBUF_SIZE];
 int interface_selected;
-u_char *dataIndex;
 QString captureFilterString;
 QString displayFilterString;
 
@@ -23,6 +23,5 @@ int main(int argc, char *argv[])
     // release resources before return;
     int e = a.exec();
     Globe::capPacket.DeleteList();
-    // pcap_freealldevs(alldevs);
     return e;
 }

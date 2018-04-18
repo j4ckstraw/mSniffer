@@ -264,13 +264,16 @@ typedef struct PacketList
 
     void DeleteList()
     {
-        while(Head!=Tail)
+//        while(Head!=Tail)
+//        {
+//            DeleteNode();
+//        }
+        // refact delete
+        while(Head != NULL)
         {
-            /*Index=Head;
-            Head=Head->Next;
-            //Index->DeleteNode();
-            delete Index;*/
-            DeleteNode();
+            Tindex = Head;
+            Head = Head->Next;
+            delete Tindex;
         }
 
         Tail=NULL;

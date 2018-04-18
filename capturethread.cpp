@@ -5,8 +5,9 @@
 #include <QDebug>
 #include <QMessageBox>
 
-extern pcap_if_t *alldevs;
+extern QList<QString> devicesName;
 extern int interface_selected;
+extern char errbuf[PCAP_ERRBUF_SIZE];
 extern QString captureFilterString;
 
 CaptureThread::CaptureThread()
@@ -25,20 +26,12 @@ void CaptureThread::stop()
 void CaptureThread::run()
 {
     pcap_t *adhandle;
-    pcap_if_t *d;
-    char errbuf[PCAP_ERRBUF_SIZE];
-    int i;
-    // u_int netmask;
-
     Filter filter;
     int res;
-    // clock_t capTime;
-
-    /* Jump to the selected adapter */
-    for(d=alldevs, i=0; i< interface_selected;d=d->next, i++);
-
+    const char *name = devicesName.at(interface_selected).toStdString().c_str();
+    qDebug() << QString("device name: %1").arg(name);
     /* Open the adapter */
-    if ( (adhandle= pcap_open(d->name,   // 设备名
+    if ( (adhandle= pcap_open(name,   // 设备名
                               65536,     // 要捕捉的数据包的部分
                                          // 65535保证能捕获到不同数据链路层上的每个数据包的全部内容
                               PCAP_OPENFLAG_PROMISCUOUS,  // 混杂模式
@@ -87,7 +80,7 @@ void CaptureThread::run()
             Globe::capPacket.Tail->Initial();
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
-            Globe::capPacket.Tail->NAname=d->name;
+            Globe::capPacket.Tail->NAname=QString(name);
             //printf("%d CaptureTime=%d, len:%d\n",Globe::capPacket.Tail->serialnum,Globe::capPacket.Tail->captime,Globe::capPacket.Tail->header->len);
         }
         else

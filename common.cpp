@@ -89,7 +89,6 @@ QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen)
 
 void AnalyzeIP()//分析IP报头
 {
-    qDebug() << "AnalyzeIP";
     u_char IP_len=0;
     dataIndex=(u_char *)Globe::capPacket.Index->pkt_data+14;
     u_char n=*dataIndex&0xf0;

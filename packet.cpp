@@ -151,17 +151,17 @@ TCP::TCP(tcp_header *th)
     crc = QString::number(ntohs(tcp_hdr->crc));
     urgp = QString(ntohs(tcp_hdr->urgp));
 
-    qDebug() << "############# TCP INFO #############";
-    qDebug() << "Src port : "<< src_port;
-    qDebug() << "Dst port: " << dst_port;
-    qDebug() << "seq number : "<< seq_num;
-    qDebug() << "ack number : " << ack_num;
-    qDebug() << "data offset: " << data_offset;
-    qDebug() << "flags : " << flags;
-    qDebug() << QString("URG:%1,ACK:%2,PSH:%3,RST:%4,SYN:%5,FIN:%6;").arg(URG).arg(ACK).arg(PSH).arg(RST).arg(SYN).arg(FIN);
-    qDebug() << "Window size: " << window_size;
-    qDebug() << "Checksum : "<< crc;
-    qDebug() << "Urg pointer: "<< urgp;
+//    qDebug() << "############# TCP INFO #############";
+//    qDebug() << "Src port : "<< src_port;
+//    qDebug() << "Dst port: " << dst_port;
+//    qDebug() << "seq number : "<< seq_num;
+//    qDebug() << "ack number : " << ack_num;
+//    qDebug() << "data offset: " << data_offset;
+//    qDebug() << "flags : " << flags;
+//    qDebug() << QString("URG:%1,ACK:%2,PSH:%3,RST:%4,SYN:%5,FIN:%6;").arg(URG).arg(ACK).arg(PSH).arg(RST).arg(SYN).arg(FIN);
+//    qDebug() << "Window size: " << window_size;
+//    qDebug() << "Checksum : "<< crc;
+//    qDebug() << "Urg pointer: "<< urgp;
 }
 
 UDP::~UDP()
@@ -177,9 +177,9 @@ UDP::UDP(udp_header *uh)
     length = QString::number(ntohs(udp_hdr->len));
     crc = QString::number(ntohs(udp_hdr->crc));
 
-    qDebug() << "############# UDP INFO #############";
-    qDebug() << "Src port : "<< src_port;
-    qDebug() << "Dst port: " << dst_port;
-    qDebug() << "Length: "<< length;
-    qDebug() << "Checksum: "<< crc;
+//    qDebug() << "############# UDP INFO #############";
+//    qDebug() << "Src port : "<< src_port;
+//    qDebug() << "Dst port: " << dst_port;
+//    qDebug() << "Length: "<< length;
+//    qDebug() << "Checksum: "<< crc;
 }

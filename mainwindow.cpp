@@ -13,7 +13,6 @@
 #include <QFileDialog>
 
 QString file_name;
-
 QStandardItemModel *PacketModel = new QStandardItemModel(); // packet model
 QStandardItemModel *DetailModel = new QStandardItemModel(); // detail model
 
@@ -60,10 +59,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionRestart->setEnabled(false);
 
     chosedialog = new InterfacesDialog();
-    chosedialog->setModal(false);
-    chosedialog->exec();
-    chosedialog->activateWindow();
-
+//    chosedialog->setModal(false);
+    chosedialog->show();
+//    chosedialog->exec();
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
@@ -199,6 +197,8 @@ void MainWindow::on_actionStart_triggered()
         anaThread.start();
     if(!packetpriThread.isRunning())
         packetpriThread.start(QThread::HighPriority);
+//    if(!detailpriThread.isRunning())
+//        detailpriThread.start();
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -227,6 +227,7 @@ void MainWindow::on_actionRestart_triggered()
     Globe::capPacket.DeleteList();
     PacketModel->clear();
     DetailModel->clear();
+    ui->textEdit_raw->clear();
     PacketModel->setColumnCount(SIZEOF_HEADER);
     PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
     PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
@@ -268,13 +269,7 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
     {
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
-        qDebug() << "On packet clicked #####################";
-        qDebug() << QString("Row: %1").arg(row);
-        qDebug() << QString("QPoint: ") << QPoint(row,0);
-        qDebug() << QString("Data: ") << ui->tableView_packet->indexAt(QPoint(row,0)).data();
-        qDebug() << QString("Data to INT: %1").arg(ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt());
-
-        unsigned int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
+        unsigned int sernum = PacketModel->index(row,0).data().toInt();
         qDebug() << QString("Serial number(first Get): %1").arg(sernum);
         if(sernum == 0 )
         {
@@ -286,9 +281,7 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
         {
             Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
         }
-        qDebug() << QString("Serial number(before DetailPrintThread): %1").arg(sernum);
         PrintRawdata();
-        // PrintDetaildata(sernum);
         if(!detailpriThread.isRunning())
             detailpriThread.start();
     }
