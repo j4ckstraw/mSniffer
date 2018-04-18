@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QModelIndex>
 #include "filter.h"
+#include <QNetworkInterface>
 
 extern pcap_if_t *alldevs;
 extern char errbuf[PCAP_ERRBUF_SIZE];
@@ -51,11 +52,11 @@ InterfacesDialog::InterfacesDialog() :
     int adaper_count=0;
     QString strText;
 
-    //    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
-    //    {
-    //        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
-    //        return 0;
-    //    }
+//        if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
+//        {
+//            fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+//            return 0;
+//        }
 
     if(pcap_findalldevs(&alldevs, errbuf) == -1)
     {
@@ -140,7 +141,6 @@ InterfacesDialog::InterfacesDialog() :
     }
     ui->treeView->setModel(AdaperInfo);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
 }// interfacesDialog()
 
 InterfacesDialog::~InterfacesDialog()
@@ -182,4 +182,19 @@ void InterfacesDialog::on_buttonBox_accepted()
     captureFilterString = ui->lineEdit_filter->text();
     qDebug() << "Capture filter: " << captureFilterString;
     qDebug() << "SELECTED INTERFACE: " << interface_selected;
+
+    qDebug() << "See HERE";
+    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
+    {
+        qDebug() << "############ start ###########";
+        qDebug() << interf.humanReadableName();
+        qDebug() << interf.name();
+        qDebug() << interf.hardwareAddress();
+        qDebug() << "############# end ##############";
+    }
+
+    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
+    qDebug() << "interface name: ",
+    qDebug() << inf.humanReadableName();
+
 }
