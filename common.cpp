@@ -1,7 +1,7 @@
 #include "common.h"
 #include "winsock2.h"
 #include "packet.h"
-
+#include <QDebug>
 #include <QMessageBox>
 
 PacketList Globe::capPacket;
@@ -89,6 +89,7 @@ QString ip6tos(struct sockaddr *sockaddr, char *address, int addrlen)
 
 void AnalyzeIP()//分析IP报头
 {
+    qDebug() << "AnalyzeIP";
     u_char IP_len=0;
     dataIndex=(u_char *)Globe::capPacket.Index->pkt_data+14;
     u_char n=*dataIndex&0xf0;
@@ -103,30 +104,31 @@ void AnalyzeIP()//分析IP报头
 
         Globe::capPacket.Index->Netlimit=14+IP_len;
 
-        if(Globe::capPacket.Index->IPv4_header->proto==17)//UDP
+        if(Globe::capPacket.Index->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
         {
             Globe::capPacket.UDP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("UDP");
             Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+8;
         }
-        else if(Globe::capPacket.Index->IPv4_header->proto==6)//TCP
+        else if(Globe::capPacket.Index->IPv4_header->proto==PROTO_TYPE_TCP)//TCP
         {
             //HTTP
+            qDebug() << "Analyze TCP";
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
             Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+IP_len*4);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+20;
 
             if(Globe::capPacket.Index->TCP_header && \
-                    (Globe::capPacket.Index->TCP_header->sport == 80 \
-                     ||  Globe::capPacket.Index->TCP_header->dport == 80))
+                    (ntohs(Globe::capPacket.Index->TCP_header->sport) == 80 \
+                     ||  ntohs(Globe::capPacket.Index->TCP_header->dport) == 80))
             {
-                if (analyzeHttpPacket(Globe::capPacket.Pindex).compare("") != 0)
-                    Globe::capPacket.Index->Transpro=QString("HTTP");
+                qDebug() << "AnalyzeHTTP in analyzeIP";
+                analyzeHttpPacket(Globe::capPacket.Index);
             }
         }
-        else if(Globe::capPacket.Index->IPv4_header->proto==1)//ICMP
+        else if(Globe::capPacket.Index->IPv4_header->proto==PROTO_TYPE_ICMP)//ICMP
         {
             Globe::capPacket.ICMP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("ICMP");
@@ -145,14 +147,14 @@ void AnalyzeIP()//分析IP报头
         Globe::capPacket.Index->Netlimit=14+40;
         Globe::capPacket.Index->Netpro=QString("IPv6");
         Globe::capPacket.Index->IPv6_header=(ipv6_header *)dataIndex;
-        if(Globe::capPacket.Index->IPv6_header->next_header==17)//UDP
+        if(Globe::capPacket.Index->IPv6_header->next_header==PROTO_TYPE_UDP)//UDP
         {
             Globe::capPacket.UDP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("UDP");
             Globe::capPacket.Index->UDP_header=(udp_header *)(dataIndex+40);
             Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit+8;
         }
-        else if(Globe::capPacket.Index->IPv6_header->next_header==6)//TCP
+        else if(Globe::capPacket.Index->IPv6_header->next_header==PROTO_TYPE_TCP)//TCP
         {
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
@@ -194,17 +196,17 @@ void AnalyzeEthernet()//分析以太网头
     //u_short k
     Globe::capPacket.Index->ether_header->ether_type=ntohs(Globe::capPacket.Index->ether_header->ether_type);
     Globe::capPacket.Index->header.len=Globe::capPacket.Index->header.len;
-    if(Globe::capPacket.Index->ether_header->ether_type==0x0800 || Globe::capPacket.Index->ether_header->ether_type==0x86DD)//IP数据报
+    if(Globe::capPacket.Index->ether_header->ether_type==ETHER_TYPE_IPv4 || Globe::capPacket.Index->ether_header->ether_type==ETHER_TYPE_IPv6)//IP数据报
     {
         AnalyzeIP();
     }
-    else if(Globe::capPacket.Index->ether_header->ether_type==0x0806)//ARP数据报
+    else if(Globe::capPacket.Index->ether_header->ether_type==ETHER_TYPE_ARP)//ARP数据报
     {
         Globe::capPacket.ARP_Countpk++;
         Globe::capPacket.Index->Netpro=QString("ARP");
         AnalyzeARP();
     }
-    else if(Globe::capPacket.Index->ether_header->ether_type==0x8035)//RARP数据报
+    else if(Globe::capPacket.Index->ether_header->ether_type==ETHER_TYPE_RARP)//RARP数据报
     {
         Globe::capPacket.RARP_Countpk++;
         Globe::capPacket.Index->Netpro=QString("RARP");

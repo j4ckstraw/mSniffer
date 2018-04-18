@@ -24,10 +24,8 @@ void PrintThread::stop()
 
 void PrintThread::run()
 {
-//    qDebug() << "Print Thread start";
     while(!stopped)
     {
-//        qDebug() << "In Print thread no stopped";
         Globe::capPacket.Pindex=Globe::capPacket.Head;
         while(Globe::capPacket.Pindex!=Globe::capPacket.Index)
         {
@@ -39,19 +37,16 @@ void PrintThread::run()
                 }
                 PrintPacket_on_fly(Globe::capPacket.Pindex);
                 emit Modelchanged();
-//                qDebug() << "emit Modelchanged";
                 Globe::capPacket.Pindex->Pflag=true;
             }
             Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
         }
         Sleep(1);
     }
-//    qDebug()<< "Print thread outof while";
     while(Globe::capPacket.Pindex && Globe::capPacket.Pindex!=Globe::capPacket.Index)//停止信号发送后可能还有未打印的数据包
     {
         if(!Globe::capPacket.Pindex->Pflag && Globe::capPacket.Pindex->Aflag)
         {
-//            qDebug() << "Print thread another while";
             while(!MuxFlag)//等待打印完成
             {
                 Sleep(1);
@@ -94,7 +89,6 @@ void PrintPacket_on_fly(Packet *Pindex)
     int row=PacketModel->rowCount();
     PacketModel->insertRow(row,QModelIndex());
 
-//    qDebug() << "In PrintPacket_on_fly";
     s.setNum(Pindex->serialnum);//序列号
     qDebug() << "Serianum is : " << Pindex->serialnum;
     PacketModel->setData(PacketModel->index(row,0),s);
@@ -104,7 +98,8 @@ void PrintPacket_on_fly(Packet *Pindex)
 
     u_short k=Pindex->ether_header->ether_type;
 
-    if(k==ETHER_TYPE_IPv4)//IPv4
+    // if(k==ETHER_TYPE_IPv4)//IPv4
+    if (Pindex->Netpro.compare("IPv4")==0)
     {
         if(Pindex->IPv4_header==NULL)
         {
@@ -113,14 +108,14 @@ void PrintPacket_on_fly(Packet *Pindex)
         }
         else
         {
-            s=QString("%1.%2.%3.%4").arg(Pindex->IPv4_header->saddr.byte1).arg(Pindex->IPv4_header->saddr.byte2).arg(Pindex->IPv4_header->saddr.byte3).arg(Pindex->IPv4_header->saddr.byte4);//源IP地址
+            s = iptos(Pindex->IPv4_header->saddr);
             PacketModel->setData(PacketModel->index(row,2),s);
-
-            s=QString("%1.%2.%3.%4").arg(Pindex->IPv4_header->daddr.byte1).arg(Pindex->IPv4_header->daddr.byte2).arg(Pindex->IPv4_header->daddr.byte3).arg(Pindex->IPv4_header->daddr.byte4);//目的IP地址
+            s = iptos(Pindex->IPv4_header->daddr);
             PacketModel->setData(PacketModel->index(row,3),s);
         }
 
-        if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
+        // if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
+        if(Pindex->Transpro.compare("UDP") == 0)
         {
             s=QString("UDP");
             PacketModel->setData(PacketModel->index(row,4),s);
@@ -139,7 +134,8 @@ void PrintPacket_on_fly(Packet *Pindex)
                 PacketModel->setData(PacketModel->index(row,6),s);
             }
         }
-        else if(Pindex->IPv4_header->proto==PROTO_TYPE_TCP)//TCP
+        // else if(Pindex->IPv4_header->proto==PROTO_TYPE_TCP)//TCP
+        else if(Pindex->Transpro.compare("TCP") == 0)
         {
             s=QString("TCP");
             PacketModel->setData(PacketModel->index(row,4),s);
@@ -153,17 +149,16 @@ void PrintPacket_on_fly(Packet *Pindex)
                 PacketModel->setData(PacketModel->index(row,6),"UNKNOWN");
                 PacketModel->setData(PacketModel->index(row,7),"UNKNOWN");
             }
-            // else if (dst_port == 80 || src_port == 80) // HTTP
-            // else if(Pindex->)
-            if (Globe::capPacket.Pindex->Netpro.compare("HTTP")==0)
+
+            if (Pindex->Apppro.compare("HTTP")==0)
             {
                 s=QString("HTTP");
                 PacketModel->setData(PacketModel->index(row,4),s);
 
                 QString http_txt = analyzeHttpPacket(Pindex);
                 HTTP httpInfo = HTTP(http_txt);
-                if (src_port == 80) s = httpInfo.httpResponse;
-                else if(dst_port == 80) s = httpInfo.httpMethod;
+                if (src_port == 80) s = httpInfo.httpResponse.split("\r\n")[0];
+                else if(dst_port == 80) s = httpInfo.httpMethod.split("\r\n")[0];
                 else s = "UNKNOWN";
                 PacketModel->setData(PacketModel->index(row,6),s);
             }

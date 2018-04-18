@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     priThread.MuxFlag=true;
 
     /*数据包基本信息联机显示列表*/
-#define SIZEOF_HEADER 8
+#define SIZEOF_HEADER 7
     PacketModel->setColumnCount(SIZEOF_HEADER);
     PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
     PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
@@ -36,13 +36,12 @@ MainWindow::MainWindow(QWidget *parent) :
     PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
     PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
     PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("           Info          "));
-    PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
-//    ui->tableView_packet->horizontalHeader()->set
-    ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
+
+    ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     ui->tableView_packet->setModel(PacketModel);
 
-    // ui->tableView_packet->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    ui->tableView_packet->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableView_packet->setEditTriggers(QTableView::NoEditTriggers);
     ui->tableView_packet->verticalHeader()->setVisible(false);
     ui->tableView_packet->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -96,8 +95,9 @@ void MainWindow::PrintDetaildata(int sernum)
     ui->treeView_detail->setHeaderHidden(true);
     ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);
     QStandardItemModel *DetailModel = new QStandardItemModel();
-    // QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
-    // DetailModel->appendRow(rootItem);
+
+    QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
+    DetailModel->appendRow(rootItem);
 
     /* Frame Info */
     QString arrivedTime = Globe::capPacket.OIndex->timestamp;
@@ -240,7 +240,7 @@ void MainWindow::PrintDetaildata(int sernum)
     } // end default
 
     /* Application Layer Info */
-    if(Globe::capPacket.OIndex->Netpro.compare("HTTP")==0) // HTTP
+    if(Globe::capPacket.OIndex->Apppro.compare("HTTP")==0) // HTTP
     {
         strText = "Hypertext Transfer Protocol";
         QStandardItem *appItem = new QStandardItem(strText);
@@ -408,13 +408,13 @@ void MainWindow::on_actionRestart_triggered()
     PacketModel->clear();
     PacketModel->setColumnCount(SIZEOF_HEADER);
     PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
-    PacketModel->setHeaderData(1,Qt::Horizontal,QString("Time"));
-    PacketModel->setHeaderData(2,Qt::Horizontal,QString("Source"));
-    PacketModel->setHeaderData(3,Qt::Horizontal,QString("Destionation"));
-    PacketModel->setHeaderData(4,Qt::Horizontal,QString("Protocol"));
-    PacketModel->setHeaderData(5,Qt::Horizontal,QString("Length"));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("Info"));
-    PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
+    PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
+    PacketModel->setHeaderData(2,Qt::Horizontal,QString("     Source     "));
+    PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
+    PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
+    PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
+    // PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
     this->SetModel();
     if(!capThread.isRunning())
         capThread.start();
@@ -471,22 +471,18 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
     if(!priThread.isRunning())
     {
-        // QModelIndex index=ui->tableView_packet->currentIndex();
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
-        // int sernum=ui->tableView_packet->index(row,0).data().toInt();
         unsigned int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
-        // int sernum = ui->tableView_packet->childAt(row,0)->data().toInt();
 
-
-        Globe::capPacket.OIndex=Globe::capPacket.Head;//
+        Globe::capPacket.OIndex=Globe::capPacket.Head;
         while(Globe::capPacket.OIndex->serialnum!=sernum)
         {
             Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
         }
 
-        PrintRawdata();//
-        PrintDetaildata(sernum);//
+        PrintRawdata();
+        PrintDetaildata(sernum);
     }
 }
 

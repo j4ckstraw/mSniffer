@@ -31,16 +31,18 @@ HTTP::HTTP(QString text)
 }
 
 
-QString analyzeHttpPacket(struct Packet *Pindex)
+QString analyzeHttpPacket(struct Packet *index)
 {
-    char* ip_pkt_data = (char*)Pindex->IPv4_header;
-    int ip_len = ntohs(Pindex->IPv4_header->tlen);
+    qDebug() << "AnalyzeHttpPacket";
+    char* ip_pkt_data = (char*)index->IPv4_header;
+    u_short sport = ntohs(index->TCP_header->sport);
+    u_short dport = ntohs(index->TCP_header->dport);
+    int ip_len = ntohs(index->IPv4_header->tlen);
     bool find_http = false;
     std::string http_txt = "";
     for(int i=0;i<ip_len;++i){
-
         //check the http request
-        if(!find_http
+        if(!find_http && dport == 80
                 && ((i+3<ip_len && strncmp(ip_pkt_data+i,"GET ",strlen("GET ")) ==0 )
                 || (i+4<ip_len && strncmp(ip_pkt_data+i,"HEAD ",strlen("HEAD ")) == 0 )
                 || (i+4<ip_len && strncmp(ip_pkt_data+i,"POST ",strlen("POST ")) == 0 )
@@ -52,7 +54,7 @@ QString analyzeHttpPacket(struct Packet *Pindex)
         }
 
         //check the http response
-        if(!find_http && i+8<ip_len && strncmp(ip_pkt_data+i,"HTTP/1.1 ",strlen("HTTP/1.1 "))==0)
+        if(!find_http && sport == 80 && i+8<ip_len && strncmp(ip_pkt_data+i,"HTTP/1.1 ",strlen("HTTP/1.1 "))==0)
         {
             find_http = true;
         }
@@ -64,11 +66,19 @@ QString analyzeHttpPacket(struct Packet *Pindex)
             http_txt += ip_pkt_data[i];
         }
     }
-    Pindex->Netpro = "HTTP";
+
+    qDebug() << "HTTP content:" << QString(http_txt.c_str());
+
     if (find_http)
+    {
+        index->Apppro = "HTTP";
         return QString(http_txt.c_str());
+    }
     else
+    {
+        index->Apppro = "";
         return QString("");
+    }
 }
 
 IP::~IP(){}
@@ -103,18 +113,18 @@ IP::IP(ip_header *ih)
             .arg(ip_hdr->daddr.byte4);
     crc = QString::number(ip_hdr->crc);
     ident = QString::number(ip_hdr->identification);
-    qDebug() << "############# IP INFO #############";
-    qDebug() << "Version: " << ver;
-    qDebug() << "Header len: "<< hdr_len;
-    qDebug() << "Type of service： " << tos;
-    qDebug() << "total len: " << tlen;
-    qDebug() << "flags : "<< flags;
-    qDebug() <<"TTL: "<<ttl;
-    qDebug() <<"Protocol: " << proto;
-    qDebug() <<"Source: "<< src;
-    qDebug() << "Destination: " <<dst;
-    qDebug() << "CRC: " << crc;
-    qDebug() << "Identical: " << ident;
+//    qDebug() << "############# IP INFO #############";
+//    qDebug() << "Version: " << ver;
+//    qDebug() << "Header len: "<< hdr_len;
+//    qDebug() << "Type of service： " << tos;
+//    qDebug() << "total len: " << tlen;
+//    qDebug() << "flags : "<< flags;
+//    qDebug() <<"TTL: "<<ttl;
+//    qDebug() <<"Protocol: " << proto;
+//    qDebug() <<"Source: "<< src;
+//    qDebug() << "Destination: " <<dst;
+//    qDebug() << "CRC: " << crc;
+//    qDebug() << "Identical: " << ident;
 }
 
 TCP::~TCP()

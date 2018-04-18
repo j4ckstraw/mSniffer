@@ -101,8 +101,9 @@ typedef struct Packet
     struct tcp_header *TCP_header;//TCP首部
     struct icmp_header *ICMP_header;//ICMP首部
 
-    QString Netpro;//网络层协议
-    QString Transpro;//传输层协议
+    QString Netpro;// network layter protocol
+    QString Transpro;// transport layer protocol
+    QString Apppro; // application layer protocol
     QString SIP;//源IP
     QString DIP;//目的IP
     QString SPort;//源端口
