@@ -31,7 +31,6 @@ void DetailPrintThread::run()
         return ;
     }
     u_short sernum = Globe::capPacket.OIndex->serialnum;
-    qDebug() << QString("Serial number(in DetailPrintThread): %1").arg(sernum);
     QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
     // clear it before append
     DetailModel->clear();
@@ -70,12 +69,44 @@ void DetailPrintThread::run()
     item = new QStandardItem(QString("Type: %1 (%2)").arg(type).arg(proto));
     childItems.push_back(item);
     etherItem->appendRows(childItems);
-    // rootItem->appendRow(etherItem);
     DetailModel->appendRow(etherItem);
 
     /* Network Info */
 
-    if(Globe::capPacket.OIndex->Netpro.compare("IPv4")==0)   // IPv4
+    qDebug() << "Network info:" <<  Globe::capPacket.OIndex->Netpro;
+
+    if(Globe::capPacket.OIndex->Netpro.compare("ARP")==0)
+    {
+        ARP arpInfo(Globe::capPacket.OIndex->ARP_header);
+        strText = QString("Address Resolution Protocol(%1)").arg(arpInfo.opcode_str);
+        QStandardItem *networkItem = new QStandardItem(strText);
+        childItems.clear();
+        item = new QStandardItem(QString("Hardware type: %1").arg(arpInfo.hd_type));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Protocol type: %1(0x%2)").arg(arpInfo.proto_type_str).arg(arpInfo.proto_type,0,16));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Hardware size: %1").arg(arpInfo.hd_len));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Protocol size: %1").arg(arpInfo.pro_addr_len));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Opcode: %1(%2)").arg(arpInfo.opcode_str).arg(arpInfo.opcode));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Sender MAC address: %1").arg(arpInfo.src_addr));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Sender IP address: %1").arg(arpInfo.sip_addr));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Target MAC address: %1").arg(arpInfo.dst_addr));
+        childItems.push_back(item);
+        item = new QStandardItem(QString("Sender MAC address: %1").arg(arpInfo.dip_addr));
+        childItems.push_back(item);
+        networkItem->appendRows(childItems);
+        DetailModel->appendRow(networkItem);
+    }
+    else if(Globe::capPacket.OIndex->Netpro.compare("RARP")==0)
+    {
+
+    }
+    else if(Globe::capPacket.OIndex->Netpro.compare("IPv4")==0)   // IPv4
     {
         IP ipInfo = IP(Globe::capPacket.OIndex->IPv4_header);
         strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver,ipInfo.src,ipInfo.dst);
@@ -119,6 +150,7 @@ void DetailPrintThread::run()
         // rootItem->appendRow(networkItem);
         // DetailModel->appendRow(networkItem);
     }
+
 
     /* Transport Info */
     if(Globe::capPacket.OIndex->Netpro.compare("TCP")==0) // TCP

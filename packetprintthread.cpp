@@ -1,5 +1,6 @@
 #include "packetprintthread.h"
 #include "common.h"
+#include "packet.h"
 #include <QStandardItemModel>
 #include <winsock2.h>
 #include <QDebug>
@@ -325,7 +326,6 @@ void PrintPacket_on_fly(Packet *Pindex)
 
         long t=ntohl(Pindex->IPv6_header->load_length);
         s=QString("%1%2").arg(("payload length: ")).arg(t);//报要1
-
 
 //        s=QString("");//报要2
 //        PacketModel->setData(PacketModel->index(row,7),s);

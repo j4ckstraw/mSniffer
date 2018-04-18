@@ -2,35 +2,6 @@
 #include <QRegExp>
 #include <QDebug>
 
-HTTP::HTTP(){}
-HTTP::~HTTP(){}
-HTTP::HTTP(QString text)
-{
-    QRegExp httpGetMethodReg("GET .+\r\n");
-    httpGetMethodReg.setMinimal(true);
-    QRegExp httpHostReg("Host: .+\r\n");
-    httpHostReg.setMinimal(true);
-    QRegExp httpConnectionReg("Connection: .+\r\n");
-    httpConnectionReg.setMinimal(true);
-    QRegExp httpCacheControlReg("Cache-Control: .+\r\n");
-    httpCacheControlReg.setMinimal(true);
-    QRegExp httpUserAgentReg("User-Agent: .+\r\n");
-    httpUserAgentReg.setMinimal(true);
-    QRegExp httpAcceptReg("Accept: .+\r\n");
-    httpAcceptReg.setMinimal(true);
-    QRegExp httpResponseReg("HTTP/1.1 .+\r\n");
-    httpResponseReg.setMinimal(true);
-
-    if (httpGetMethodReg.indexIn(text) > -1)      httpMethod = httpGetMethodReg.cap(0);
-    if (httpHostReg.indexIn(text) > -1)           httpHost = httpHostReg.cap(0);
-    if (httpConnectionReg.indexIn(text) > -1)     httpConnection = httpConnectionReg.cap(0);
-    if (httpCacheControlReg.indexIn(text) > -1)   httpCacheControl = httpCacheControlReg.cap(0);
-    if (httpUserAgentReg.indexIn(text) > -1)      httpUserAgent = httpUserAgentReg.cap(0);
-    if (httpAcceptReg.indexIn(text) > -1)         httpAccept = httpAcceptReg.cap(0);
-    if (httpResponseReg.indexIn(text) > -1)       httpResponse = httpResponseReg.cap(0);
-}
-
-
 QString analyzeHttpPacket(struct Packet *index)
 {
     qDebug() << "AnalyzeHttpPacket";
@@ -87,19 +58,11 @@ IP::IP(ip_header *ih)
 {
     ip_hdr = ih;
     ver = QString::number((ntohs(ip_hdr->ver_ihl)&0xf000)>>12);
-    // qDebug() << "Version1: "<< ver;
     hdr_len =QString::number((ntohs(ip_hdr->ver_ihl)&0x0f00)>>8);
-    // qDebug() << "Header len: "<< hdr_len;
     tos = QString::number(ntohs(ip_hdr->tos));
-//    tlen = QString::number(ip_hdr->tlen);
-//    qDebug() << "Total Len1: "<< tlen;
     tlen = QString::number(ntohs(ip_hdr->tlen));
-//    qDebug() << "Total Len2: "<< tlen;
     flags = QString::number((ntohs(ip_hdr->flags_fo)&0xe000)>>13);
     ttl = QString::number(ip_hdr->ttl);
-//    qDebug()<< "TTL1: " << ttl;
-//    ttl = QString::number(ntohs(ip_hdr->ttl));
-//    qDebug() << "TTL2: " << ttl;
     proto = QString::number(ip_hdr->proto);
     src = QString("%1.%2.%3.%4")\
             .arg(ip_hdr->saddr.byte1)\
@@ -182,4 +145,89 @@ UDP::UDP(udp_header *uh)
 //    qDebug() << "Dst port: " << dst_port;
 //    qDebug() << "Length: "<< length;
 //    qDebug() << "Checksum: "<< crc;
+}
+
+HTTP::HTTP(){}
+HTTP::~HTTP(){}
+HTTP::HTTP(QString text)
+{
+    QRegExp httpGetMethodReg("GET .+\r\n");
+    httpGetMethodReg.setMinimal(true);
+    QRegExp httpHostReg("Host: .+\r\n");
+    httpHostReg.setMinimal(true);
+    QRegExp httpConnectionReg("Connection: .+\r\n");
+    httpConnectionReg.setMinimal(true);
+    QRegExp httpCacheControlReg("Cache-Control: .+\r\n");
+    httpCacheControlReg.setMinimal(true);
+    QRegExp httpUserAgentReg("User-Agent: .+\r\n");
+    httpUserAgentReg.setMinimal(true);
+    QRegExp httpAcceptReg("Accept: .+\r\n");
+    httpAcceptReg.setMinimal(true);
+    QRegExp httpResponseReg("HTTP/1.1 .+\r\n");
+    httpResponseReg.setMinimal(true);
+
+    if (httpGetMethodReg.indexIn(text) > -1)      httpMethod = httpGetMethodReg.cap(0);
+    if (httpHostReg.indexIn(text) > -1)           httpHost = httpHostReg.cap(0);
+    if (httpConnectionReg.indexIn(text) > -1)     httpConnection = httpConnectionReg.cap(0);
+    if (httpCacheControlReg.indexIn(text) > -1)   httpCacheControl = httpCacheControlReg.cap(0);
+    if (httpUserAgentReg.indexIn(text) > -1)      httpUserAgent = httpUserAgentReg.cap(0);
+    if (httpAcceptReg.indexIn(text) > -1)         httpAccept = httpAcceptReg.cap(0);
+    if (httpResponseReg.indexIn(text) > -1)       httpResponse = httpResponseReg.cap(0);
+}
+
+ARP::~ARP()
+{
+
+}
+
+ARP::ARP(arp_header *ah)
+{
+    arp_hdr = ah;
+
+    hd_type = QString::number(ntohs(arp_hdr->hardware_type));
+    proto_type = ntohs(arp_hdr->protocal_type);
+    switch(proto_type)
+    {
+    case ETHER_TYPE_IPv4:
+        proto_type_str = QString("IPv4");
+        break;
+    case ETHER_TYPE_IPv6:
+        proto_type_str = QString("IPv6");
+        break;
+    default:
+        proto_type_str = QString("UNKNOWN");
+        break;
+    }
+    hd_len = QString::number(arp_hdr->hwadd_len);
+    pro_addr_len = QString::number(arp_hdr->proadd_len);
+    opcode = ntohs(arp_hdr->opcode);
+    switch(opcode)
+    {
+    case ARPOP_REQUEST:
+        opcode_str = QString("ARP Request");
+        break;
+    case ARPOP_REPLY:
+        opcode_str = QString("ARP Reply");
+        break;
+    case ARPOP_RREQUEST:
+        opcode_str = QString("RARP Request.");
+        break;
+    case ARPOP_RREPLY:
+        opcode_str = QString("RARP Reply");
+        break;
+    default:
+        opcode_str = QString("UNKNOWN ARP opcode");
+        break;
+    }
+    src_addr = mactos(arp_hdr->snether_address);
+    dst_addr = mactos(arp_hdr->dnether_address);
+    sip_addr = iptos(arp_hdr->sip_address);
+    dip_addr = iptos(arp_hdr->dip_address);
+
+    qDebug() << "hd_type:" << hd_type;
+    qDebug() << "proto_type： "<< proto_type;
+    qDebug() << "hd_len" << hd_len;
+    qDebug() << "proto_addr_len" << pro_addr_len;
+    qDebug() << "opcode" << opcode;
+    qDebug() << "opcode_str" << opcode_str;
 }

@@ -59,9 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionRestart->setEnabled(false);
 
     chosedialog = new InterfacesDialog();
-//    chosedialog->setModal(false);
     chosedialog->show();
-//    chosedialog->exec();
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
@@ -270,7 +268,6 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
         unsigned int sernum = PacketModel->index(row,0).data().toInt();
-        qDebug() << QString("Serial number(first Get): %1").arg(sernum);
         if(sernum == 0 )
         {
             QMessageBox::warning(0,"Warning","Sernum is 0");
@@ -305,7 +302,6 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::UpdatePacketView()
 {
-    qDebug() << "Now in SetModel";
     packetpriThread.MuxFlag=false;
     if(PacketModel->rowCount()>0)
     {
@@ -320,7 +316,6 @@ void MainWindow::UpdatePacketView()
 
 void MainWindow::FlushDetailView()
 {
-    qDebug() << "Now in DetailModel";
     detailpriThread.MuxFlag=false;
     ui->treeView_detail->setHeaderHidden(true);
     ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);

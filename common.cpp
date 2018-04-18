@@ -28,7 +28,7 @@ QString iptos(struct ip_address address)
 
 QString mactos(mac_address address)
 {
-    QString str = QString("(%1:%2:%3:%4:%5:%6)")\
+    QString str = QString("%1:%2:%3:%4:%5:%6")\
             .arg(address.byte1,0,16)\
             .arg(address.byte2,0,16)\
             .arg(address.byte3,0,16)\
@@ -173,6 +173,7 @@ void AnalyzeARP()//分析ARP和RARP报头
     dataIndex=(u_char *)Globe::capPacket.Index->pkt_data+14;
     Globe::capPacket.Index->ARP_header=(arp_header *)dataIndex;
     Globe::capPacket.Index->Netlimit=14+28;
+    Globe::capPacket.Index->Netpro = "ARP";
     Globe::capPacket.Index->Translimit=Globe::capPacket.Index->Netlimit;
 }
 

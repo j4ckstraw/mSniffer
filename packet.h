@@ -27,6 +27,26 @@ public:
     QString ident;
 };
 
+class ARP
+{
+public:
+    ARP();
+    ~ARP();
+    struct arp_header *arp_hdr;
+    ARP(struct arp_header *ah);
+
+    QString hd_type;
+    u_short proto_type;
+    QString proto_type_str;
+    QString hd_len;
+    QString pro_addr_len;
+    u_short opcode;
+    QString opcode_str;
+    QString src_addr;
+    QString dst_addr;
+    QString sip_addr;
+    QString dip_addr;
+};
 class TCP
 {
 public:

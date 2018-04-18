@@ -10,7 +10,6 @@
 #include <ws2tcpip.h>
 #include "packet.h"
 
-
 extern u_char *dataIndex;
 QString iptos(u_long in);
 QString iptos(struct ip_address address);
