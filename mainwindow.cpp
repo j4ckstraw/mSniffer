@@ -4,7 +4,7 @@
 #include <QStandardItemModel>
 #include "common.h"
 #include <QDebug>
-#include "printthread.h"
+#include "packetprintthread.h"
 #include "capturethread.h"
 #include "analysethread.h"
 #include "offlineanalysethread.h"
@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     comboindex=0;
     selnum=-1;
     rawdataFlag=false;
-    priThread.MuxFlag=true;
+    packetpriThread.MuxFlag=true;
 
     /*数据包基本信息联机显示列表*/
 #define SIZEOF_HEADER 7
@@ -58,8 +58,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionRestart->setEnabled(false);
 
     chosedialog = new InterfacesDialog();
-//    chosedialog->show();
-    //this->estModel(false);
     chosedialog->setModal(false);
     chosedialog->exec();
     chosedialog->activateWindow();
@@ -68,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
-    connect(&priThread,SIGNAL(Modelchanged()),this,SLOT(SetModel()));
+    connect(&packetpriThread,SIGNAL(Modelchanged()),this,SLOT(UpdatePacketView()));
 
 
 }
@@ -79,8 +77,8 @@ MainWindow::~MainWindow()
         capThread.terminate();
     if(!anaThread.isFinished())
         anaThread.terminate();
-    if(!priThread.isFinished())
-        priThread.terminate();
+    if(!packetpriThread.isFinished())
+        packetpriThread.terminate();
     if(!offThread.isFinished())
         offThread.terminate();
     delete ui;
@@ -344,8 +342,8 @@ void MainWindow::on_actionQuit_triggered()
         capThread.terminate();
     if(anaThread.isRunning())
         anaThread.terminate();
-    if(priThread.isRunning())
-        priThread.terminate();
+    if(packetpriThread.isRunning())
+        packetpriThread.terminate();
     if(offThread.isRunning())
         offThread.terminate();
 
@@ -377,8 +375,8 @@ void MainWindow::on_actionStart_triggered()
         capThread.start();
     if(!anaThread.isRunning())
         anaThread.start();
-    if(!priThread.isRunning())
-        priThread.start(QThread::HighPriority);
+    if(!packetpriThread.isRunning())
+        packetpriThread.start(QThread::HighPriority);
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -402,7 +400,7 @@ void MainWindow::on_actionRestart_triggered()
     ui->actionRestart->setEnabled(true);
     capThread.terminate();
     anaThread.terminate();
-    priThread.terminate();
+    packetpriThread.terminate();
     // restart clear captured packets.
     Globe::capPacket.DeleteList();
     PacketModel->clear();
@@ -415,13 +413,13 @@ void MainWindow::on_actionRestart_triggered()
     PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
     PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
     // PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
-    this->SetModel();
+    this->UpdatePacketView();
     if(!capThread.isRunning())
         capThread.start();
     if(!anaThread.isRunning())
         anaThread.start();
-    if(!priThread.isRunning())
-        priThread.start(QThread::HighPriority);
+    if(!packetpriThread.isRunning())
+        packetpriThread.start(QThread::HighPriority);
 }
 
 void MainWindow::on_actionPause_triggered()
@@ -440,10 +438,10 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
     QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!\n");
 }
 
-void MainWindow::SetModel()
+void MainWindow::UpdatePacketView()
 {
     qDebug() << "Now in SetModel";
-    priThread.MuxFlag=false;
+    packetpriThread.MuxFlag=false;
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
@@ -452,13 +450,13 @@ void MainWindow::SetModel()
     {
         qDebug() << QString("PacketModel count: %1").arg(PacketModel->rowCount());
     }
-    priThread.MuxFlag=true;
+    packetpriThread.MuxFlag=true;
 }
 
 void MainWindow::StopPrint()
 {
-    if(priThread.isRunning())
-        priThread.stop();
+    if(packetpriThread.isRunning())
+        packetpriThread.stop();
 }
 
 void MainWindow::StopAnalyze()
@@ -469,7 +467,7 @@ void MainWindow::StopAnalyze()
 
 void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
-    if(!priThread.isRunning())
+    if(!packetpriThread.isRunning())
     {
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
@@ -498,7 +496,7 @@ void MainWindow::on_actionOpen_triggered()
         offThread.start();
     if(!anaThread.isRunning())
         anaThread.start();
-    if(!priThread.isRunning())
-        priThread.start();
+    if(!packetpriThread.isRunning())
+        packetpriThread.start();
 }
 

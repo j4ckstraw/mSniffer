@@ -141,14 +141,12 @@ InterfacesDialog::InterfacesDialog() :
     ui->treeView->setModel(AdaperInfo);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-//    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-//    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
 }// interfacesDialog()
 
 InterfacesDialog::~InterfacesDialog()
 {
     pcap_freealldevs(alldevs);
+    qDebug() << "Free all devices";
     delete ui;
 }
 
@@ -157,7 +155,6 @@ void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
     QString strText;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    // QModelIndex index = ui->treeView->currentIndex();
     QString s=index.data().toString();
     qDebug() << s;
     if(s.compare("Available Adapers")==0)
@@ -174,9 +171,7 @@ void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
         else if (s=index.parent().parent().parent().data().toString(),s.compare("Available Adapers")==0)
             strText=index.parent().parent().data().toString().split(' ')[1];
         else strText=s;
-        qDebug() << strText;
     }
-     // captureFilterString = ui->lineEdit_filter->text();
      ready_to_selected=devicesName.indexOf(strText);
      return;
 }

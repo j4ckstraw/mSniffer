@@ -1,4 +1,4 @@
-#include "printthread.h"
+#include "packetprintthread.h"
 #include "common.h"
 #include <QStandardItemModel>
 #include <winsock2.h>

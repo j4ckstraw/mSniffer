@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "capturethread.h"
 #include "analysethread.h"
-#include "printthread.h"
+#include "packetprintthread.h"
 #include "interfacesdialog.h"
 #include "offlineanalysethread.h"
 
@@ -32,7 +32,7 @@ private slots:
     void on_actionPause_triggered();
 
     // void StartOrStopThread();
-    void SetModel();
+    void UpdatePacketView();
     void StopPrint();
     void StopAnalyze();
 
@@ -49,7 +49,7 @@ private:
     InterfacesDialog *chosedialog;//选择网卡对话框
     CaptureThread capThread;//捕获数据包线程
     AnalyseThread anaThread;//分析数据包线程
-    PrintThread priThread;//实时打印数据包信息线程
+    PrintThread packetpriThread;//实时打印数据包信息线程
     OfflineAnalyseThread offThread;
     int comboindex;//选择过滤方式下拉表框
     // MyGraph *Piegraph;//输出统计饼图窗口
