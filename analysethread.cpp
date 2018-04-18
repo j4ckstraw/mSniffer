@@ -18,10 +18,10 @@ void AnalyseThread::stop()
 void AnalyseThread::run()
 {
     Globe::capPacket.Index=Globe::capPacket.Head;
-    qDebug() << "Now in AnalyseThread";
+//    qDebug() << "Now in AnalyseThread";
     while(!stopped)
     {
-        qDebug() << "Now in AnalyseThread: no stopped while";
+//        qDebug() << "Now in AnalyseThread: no stopped while";
         while(Globe::capPacket.Index && Globe::capPacket.Tail && Globe::capPacket.Index!=Globe::capPacket.Tail)
         {
             if(!Globe::capPacket.Index->Aflag && Globe::capPacket.Index->serialnum>0)//此包没有被分析过且不是初始节点
@@ -33,14 +33,14 @@ void AnalyseThread::run()
         }
         Sleep(1);
     }
-    qDebug() << "Now in AnalyseThread: out of while";
+//    qDebug() << "Now in AnalyseThread: out of while";
     while(Globe::capPacket.Index && Globe::capPacket.Tail && Globe::capPacket.Index!=Globe::capPacket.Tail)//停止信号发送后可能还有数据包未分析
     {
         if(!Globe::capPacket.Index->Aflag && Globe::capPacket.Index->serialnum>0)
         {
-            qDebug() << "before AnalyzeEthernet";
+//            qDebug() << "before AnalyzeEthernet";
             AnalyzeEthernet();
-            qDebug() << "after AnalyzeEthernet";
+//            qDebug() << "after AnalyzeEthernet";
             Globe::capPacket.Index->Aflag=true;
         }
         Globe::capPacket.Index=Globe::capPacket.Index->Next;

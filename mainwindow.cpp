@@ -31,13 +31,14 @@ MainWindow::MainWindow(QWidget *parent) :
 #define SIZEOF_HEADER 8
     PacketModel->setColumnCount(SIZEOF_HEADER);
     PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
-    PacketModel->setHeaderData(1,Qt::Horizontal,QString("Time"));
-    PacketModel->setHeaderData(2,Qt::Horizontal,QString("Source"));
-    PacketModel->setHeaderData(3,Qt::Horizontal,QString("Destionation"));
-    PacketModel->setHeaderData(4,Qt::Horizontal,QString("Protocol"));
-    PacketModel->setHeaderData(5,Qt::Horizontal,QString("Length"));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("Info"));
+    PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
+    PacketModel->setHeaderData(2,Qt::Horizontal,QString("     Source     "));
+    PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
+    PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
+    PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("           Info          "));
     PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
+//    ui->tableView_packet->horizontalHeader()->set
     ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tableView_packet->setModel(PacketModel);
 
@@ -93,6 +94,7 @@ void MainWindow::PrintDetaildata(int sernum)
     QList<QStandardItem *> childItems;
     qDebug() << QString("serial number:%1").arg(sernum);
     ui->treeView_detail->setHeaderHidden(true);
+    ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);
     QStandardItemModel *DetailModel = new QStandardItemModel();
     // QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
     // DetailModel->appendRow(rootItem);
