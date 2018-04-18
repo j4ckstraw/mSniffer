@@ -14,7 +14,7 @@ public:
     bool MuxFlag;
 
 signals:
-    void Modelchanged();
+    void PacketPrintDone();
 
 protected:
     void run();

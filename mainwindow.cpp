@@ -14,7 +14,9 @@
 
 QString file_name;
 
-QStandardItemModel *PacketModel = new QStandardItemModel();//数据包基本信息;
+QStandardItemModel *PacketModel = new QStandardItemModel(); // packet model
+QStandardItemModel *DetailModel = new QStandardItemModel(); // detail model
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -66,9 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
-    connect(&packetpriThread,SIGNAL(Modelchanged()),this,SLOT(UpdatePacketView()));
-
-
+    connect(&packetpriThread,SIGNAL(PacketPrintDone()),this,SLOT(UpdatePacketView()));
+    connect(&detailpriThread,SIGNAL(DetailPrintDone()),this,SLOT(FlushDetailView()));
 }
 
 MainWindow::~MainWindow()
@@ -84,189 +85,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::PrintDetaildata(int sernum)
-{
-    QString strText;
-    QStandardItem *item;
-    QList<QStandardItem *> childItems;
-    qDebug() << QString("serial number:%1").arg(sernum);
-    ui->treeView_detail->setHeaderHidden(true);
-    ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);
-    QStandardItemModel *DetailModel = new QStandardItemModel();
-
-    QStandardItem *rootItem = new QStandardItem(QString("No.%1").arg(sernum));
-    DetailModel->appendRow(rootItem);
-
-    /* Frame Info */
-    QString arrivedTime = Globe::capPacket.OIndex->timestamp;
-    QString devName = Globe::capPacket.OIndex->NAname;
-    QString packLen = QString::number(Globe::capPacket.OIndex->header.len);
-    QString frameProto = Globe::capPacket.OIndex->Netpro;
-    strText = QString("Frame: %1 bytes captured on %2").arg(packLen,devName);
-    QStandardItem *frameItem = new QStandardItem(strText);
-    item = new QStandardItem(QString("Interface name: %1").arg(devName));
-    childItems.push_back(item);
-    item = new QStandardItem(QString("Encapsulation type: %1").arg(frameProto));
-    childItems.push_back(item);
-    item = new QStandardItem(QString("Arrival time: %1").arg(arrivedTime));
-    childItems.push_back(item);
-    frameItem->appendRows(childItems);
-    //rootItem->appendRow(frameItem);
-    DetailModel->appendRow(frameItem);
-
-    /* Ethernet Info */
-    QString eth_src = mactos(Globe::capPacket.OIndex->ether_header->ether_shost);
-    QString eth_dst = mactos(Globe::capPacket.OIndex->ether_header->ether_dhost);
-    QString type = QString(Globe::capPacket.OIndex->ether_header->ether_type);
-    QString proto = QString(Globe::capPacket.OIndex->Netpro);
-
-    strText = QString("Ethernet II, Src: %1, Dst: %2").arg(eth_src,eth_dst);
-    QStandardItem *etherItem = new QStandardItem(strText);
-    childItems.clear();
-    item = new QStandardItem(QString("Destination: %1").arg(eth_dst));
-    childItems.push_back(item);
-    item = new QStandardItem(QString("Source: %1").arg(eth_src));
-    childItems.push_back(item);
-    item = new QStandardItem(QString("Type: %1 (%2)").arg(type).arg(proto));
-    childItems.push_back(item);
-    etherItem->appendRows(childItems);
-    // rootItem->appendRow(etherItem);
-    DetailModel->appendRow(etherItem);
-
-    /* Network Info */
-
-    if(Globe::capPacket.OIndex->Netpro.compare("IPv4")==0)   // IPv4
-    {
-        IP ipInfo = IP(Globe::capPacket.OIndex->IPv4_header);
-        strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver,ipInfo.src,ipInfo.dst);
-        QStandardItem *networkItem = new QStandardItem(strText);
-        childItems.clear();
-        item = new QStandardItem(QString("Version: %1").arg(ipInfo.ver));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Header Length: %1").arg(ipInfo.hdr_len));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Totol Length: %1").arg(ipInfo.tlen));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Identification: %1").arg(ipInfo.ident));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Flags: %1").arg(ipInfo.flags));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Time to live： %1").arg(ipInfo.ttl));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Protocol: %1").arg(ipInfo.proto));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Header checksum: %1").arg(ipInfo.crc));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Source: %1").arg(ipInfo.src));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Destination: %1").arg(ipInfo.dst));
-        childItems.push_back(item);
-        networkItem->appendRows(childItems);
-        // rootItem->appendRow(networkItem);
-        DetailModel->appendRow(networkItem);
-    }
-    else if(Globe::capPacket.OIndex->Netpro.compare("IPv6")==0) // IPv6
-    {
-        strText = "Internet Protocol Version 6";
-        QStandardItem *networkItem = new QStandardItem(strText);
-        // rootItem->appendRow(networkItem);
-        DetailModel->appendRow(networkItem);
-    }
-    else
-    {
-        strText = "Network Info";
-        // QStandardItem *networkItem = new QStandardItem(strText);
-        // rootItem->appendRow(networkItem);
-        // DetailModel->appendRow(networkItem);
-    }
-
-    /* Transport Info */
-    if(Globe::capPacket.OIndex->Netpro.compare("TCP")==0) // TCP
-    {
-        TCP tcpInfo = TCP(Globe::capPacket.OIndex->TCP_header);
-
-        strText = QString("Transmission Control Protocol, Src Port: %1, Dst Port: %2, Seq: %3")\
-                .arg(tcpInfo.src_port,tcpInfo.dst_port,tcpInfo.seq_num);
-        QStandardItem *transItem = new QStandardItem(strText);
-        childItems.clear();
-        item = new QStandardItem(QString("Source Port: %1").arg(tcpInfo.src_port));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Destination Port: %1").arg(tcpInfo.dst_port));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Sequence Number: %1").arg(tcpInfo.seq_num));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Acknowledgment number: %1").arg(tcpInfo.ack_num));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Header length: %1").arg(4*tcpInfo.data_offset.toInt()));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Flags: %1").arg(tcpInfo.flags));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Window size value: %1").arg(tcpInfo.window_size));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Urgent pointer: %1").arg(tcpInfo.urgp));
-        childItems.push_back(item);
-        transItem->appendRows(childItems);
-        // rootItem->appendRow(transItem);
-        DetailModel->appendRow(transItem);
-    } // end TCP
-    else if(Globe::capPacket.OIndex->Netpro.compare("UDP")==0) // UDP
-    {
-        UDP udpInfo = UDP(Globe::capPacket.OIndex->UDP_header);
-
-        strText = QString("User Datagram Protocol, Src Port: %1, Dst Port: %2")\
-                .arg(udpInfo.src_port,udpInfo.dst_port);
-        QStandardItem *transItem = new QStandardItem(strText);
-        childItems.clear();
-        item = new QStandardItem(QString("Source Port: %1").arg(udpInfo.src_port));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Destination Port: %1").arg(udpInfo.dst_port));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Length: %1").arg(udpInfo.length));
-        childItems.push_back(item);
-        item = new QStandardItem(QString("Checksum: %1").arg(udpInfo.crc));
-        childItems.push_back(item);
-        transItem->appendRows(childItems);
-        // rootItem->appendRow(transItem);
-        DetailModel->appendRow(transItem);
-    }// end UDP
-    else    // default
-    {
-        // strText = "UNKNOWN Transport Layer";
-        // QStandardItem *transItem = new QStandardItem(strText);
-        // rootItem->appendRow(transItem);
-        // DetailModel->appendRow(transItem);
-    } // end default
-
-    /* Application Layer Info */
-    if(Globe::capPacket.OIndex->Apppro.compare("HTTP")==0) // HTTP
-    {
-        strText = "Hypertext Transfer Protocol";
-        QStandardItem *appItem = new QStandardItem(strText);
-
-        QString http_txt = analyzeHttpPacket(Globe::capPacket.Pindex);
-        HTTP httpInfo = HTTP(http_txt);
-        childItems.clear();
-        if (!httpInfo.httpMethod.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpMethod)));
-        if (!httpInfo.httpResponse.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpResponse)));
-        if (!httpInfo.httpHost.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
-        if (!httpInfo.httpConnection.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
-        if (!httpInfo.httpUserAgent.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpUserAgent)));
-        if (!httpInfo.httpAccept.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpAccept)));
-        appItem->appendRows(childItems);
-        //rootItem->appendRow(appItem);
-        DetailModel->appendRow(appItem);
-    }// end HTTP
-    else  // default
-    {
-        strText = "Application Layer";
-        // QStandardItem *appItem = new QStandardItem(strText);
-        // rootItem->appendRow(appItem);
-        // DetailModel->appendRow(appItem);
-    }// end default
-
-
-    ui->treeView_detail->setModel(DetailModel);
-}
+//void MainWindow::PrintDetaildata(int sernum)
+//{
+//    ui->treeView_detail->setModel(DetailModel);
+//}
 
 void MainWindow::PrintRawdata()
 {
@@ -404,6 +226,7 @@ void MainWindow::on_actionRestart_triggered()
     // restart clear captured packets.
     Globe::capPacket.DeleteList();
     PacketModel->clear();
+    DetailModel->clear();
     PacketModel->setColumnCount(SIZEOF_HEADER);
     PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
     PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
@@ -438,32 +261,6 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
     QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!\n");
 }
 
-void MainWindow::UpdatePacketView()
-{
-    qDebug() << "Now in SetModel";
-    packetpriThread.MuxFlag=false;
-    if(PacketModel->rowCount()>0)
-    {
-        ui->tableView_packet->setModel(PacketModel);
-    }
-    else
-    {
-        qDebug() << QString("PacketModel count: %1").arg(PacketModel->rowCount());
-    }
-    packetpriThread.MuxFlag=true;
-}
-
-void MainWindow::StopPrint()
-{
-    if(packetpriThread.isRunning())
-        packetpriThread.stop();
-}
-
-void MainWindow::StopAnalyze()
-{
-    if(anaThread.isRunning())
-        anaThread.stop();
-}
 
 void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
@@ -471,16 +268,29 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
     {
         int row=index.row();//б
         ui->tableView_packet->selectRow(row);
-        unsigned int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
+        qDebug() << "On packet clicked #####################";
+        qDebug() << QString("Row: %1").arg(row);
+        qDebug() << QString("QPoint: ") << QPoint(row,0);
+        qDebug() << QString("Data: ") << ui->tableView_packet->indexAt(QPoint(row,0)).data();
+        qDebug() << QString("Data to INT: %1").arg(ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt());
 
+        unsigned int sernum = ui->tableView_packet->indexAt(QPoint(row,0)).data().toInt();
+        qDebug() << QString("Serial number(first Get): %1").arg(sernum);
+        if(sernum == 0 )
+        {
+            QMessageBox::warning(0,"Warning","Sernum is 0");
+            return ;
+        }
         Globe::capPacket.OIndex=Globe::capPacket.Head;
         while(Globe::capPacket.OIndex->serialnum!=sernum)
         {
             Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
         }
-
+        qDebug() << QString("Serial number(before DetailPrintThread): %1").arg(sernum);
         PrintRawdata();
-        PrintDetaildata(sernum);
+        // PrintDetaildata(sernum);
+        if(!detailpriThread.isRunning())
+            detailpriThread.start();
     }
 }
 
@@ -500,3 +310,48 @@ void MainWindow::on_actionOpen_triggered()
         packetpriThread.start();
 }
 
+void MainWindow::UpdatePacketView()
+{
+    qDebug() << "Now in SetModel";
+    packetpriThread.MuxFlag=false;
+    if(PacketModel->rowCount()>0)
+    {
+        ui->tableView_packet->setModel(PacketModel);
+    }
+    else
+    {
+        qDebug() << QString("PacketModel count: %1").arg(PacketModel->rowCount());
+    }
+    packetpriThread.MuxFlag=true;
+}
+
+void MainWindow::FlushDetailView()
+{
+    qDebug() << "Now in DetailModel";
+    detailpriThread.MuxFlag=false;
+    ui->treeView_detail->setHeaderHidden(true);
+    ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);
+    if(DetailModel->rowCount()>0)
+    {
+//        while(!detailpriThread.isFinished()) Sleep(1);
+        ui->treeView_detail->setModel(DetailModel);
+    }
+    else
+    {
+        qDebug() << QString("DetailModel count: %1").arg(DetailModel->rowCount());
+    }
+    detailpriThread.MuxFlag=true;
+}
+
+
+void MainWindow::StopPrint()
+{
+    if(packetpriThread.isRunning())
+        packetpriThread.stop();
+}
+
+void MainWindow::StopAnalyze()
+{
+    if(anaThread.isRunning())
+        anaThread.stop();
+}

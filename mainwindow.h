@@ -7,6 +7,7 @@
 #include "packetprintthread.h"
 #include "interfacesdialog.h"
 #include "offlineanalysethread.h"
+#include "detailprintthread.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void PrintDetaildata(int);
+    // void PrintDetaildata(int);
     void PrintRawdata();
 
 private slots:
@@ -33,6 +34,7 @@ private slots:
 
     // void StartOrStopThread();
     void UpdatePacketView();
+    void FlushDetailView();
     void StopPrint();
     void StopAnalyze();
 
@@ -51,6 +53,7 @@ private:
     AnalyseThread anaThread;//分析数据包线程
     PrintThread packetpriThread;//实时打印数据包信息线程
     OfflineAnalyseThread offThread;
+    DetailPrintThread detailpriThread;
     int comboindex;//选择过滤方式下拉表框
     // MyGraph *Piegraph;//输出统计饼图窗口
 };

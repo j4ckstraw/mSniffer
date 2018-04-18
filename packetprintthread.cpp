@@ -36,7 +36,7 @@ void PrintThread::run()
                     Sleep(1);
                 }
                 PrintPacket_on_fly(Globe::capPacket.Pindex);
-                emit Modelchanged();
+                emit PacketPrintDone();
                 Globe::capPacket.Pindex->Pflag=true;
             }
             Globe::capPacket.Pindex=Globe::capPacket.Pindex->Next;
@@ -53,7 +53,7 @@ void PrintThread::run()
                 qDebug() << "Sleep";
             }
             PrintPacket_on_fly(Globe::capPacket.Pindex);
-            emit Modelchanged();
+            emit PacketPrintDone();
 //            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
@@ -68,13 +68,13 @@ void PrintThread::run()
                 Sleep(1);
             }
             PrintPacket_on_fly(Globe::capPacket.Pindex);
-            emit Modelchanged();
+            emit PacketPrintDone();
 //            qDebug() << "emit Modelchanged";
             Globe::capPacket.Pindex->Pflag=true;
         }
     }
     stopped = false;
-    emit Modelchanged();
+    emit PacketPrintDone();
 //    qDebug() << "emit Modelchanged";
     return ;
 }
