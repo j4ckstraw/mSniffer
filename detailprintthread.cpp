@@ -54,19 +54,21 @@ void DetailPrintThread::run()
     DetailModel->appendRow(frameItem);
 
     /* Ethernet Info */
-    QString eth_src = mactos(Globe::capPacket.OIndex->ether_header->ether_shost);
-    QString eth_dst = mactos(Globe::capPacket.OIndex->ether_header->ether_dhost);
-    QString type = QString(Globe::capPacket.OIndex->ether_header->ether_type);
-    QString proto = QString(Globe::capPacket.OIndex->Netpro);
+    Ethernet ethInfo = Ethernet(Globe::capPacket.OIndex->ether_header);
 
-    strText = QString("Ethernet II, Src: %1, Dst: %2").arg(eth_src,eth_dst);
+//    QString eth_src = mactos(Globe::capPacket.OIndex->ether_header->ether_shost);
+//    QString eth_dst = mactos(Globe::capPacket.OIndex->ether_header->ether_dhost);
+//    QString type = QString(Globe::capPacket.OIndex->ether_header->ether_type);
+//    QString proto = QString(Globe::capPacket.OIndex->Netpro);
+
+    strText = QString("Ethernet II, Src: %1, Dst: %2").arg(ethInfo.shost_str,ethInfo.shost_str);
     QStandardItem *etherItem = new QStandardItem(strText);
     childItems.clear();
-    item = new QStandardItem(QString("Destination: %1").arg(eth_dst));
+    item = new QStandardItem(QString("Destination: %1").arg(ethInfo.dhost_str));
     childItems.push_back(item);
-    item = new QStandardItem(QString("Source: %1").arg(eth_src));
+    item = new QStandardItem(QString("Source: %1").arg(ethInfo.shost_str));
     childItems.push_back(item);
-    item = new QStandardItem(QString("Type: %1 (%2)").arg(type).arg(proto));
+    item = new QStandardItem(QString("Type: %1 (0x%2)").arg(ethInfo.type_str).arg(ethInfo.type,4,16,QChar('0')));
     childItems.push_back(item);
     etherItem->appendRows(childItems);
     DetailModel->appendRow(etherItem);
@@ -83,7 +85,7 @@ void DetailPrintThread::run()
         childItems.clear();
         item = new QStandardItem(QString("Hardware type: %1").arg(arpInfo.hd_type));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Protocol type: %1(0x%2)").arg(arpInfo.proto_type_str).arg(arpInfo.proto_type,0,16));
+        item = new QStandardItem(QString("Protocol type: %1(0x%2)").arg(arpInfo.proto_type_str).arg(arpInfo.proto_type,4,16,QChar('0')));
         childItems.push_back(item);
         item = new QStandardItem(QString("Hardware size: %1").arg(arpInfo.hd_len));
         childItems.push_back(item);

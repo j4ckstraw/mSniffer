@@ -6,6 +6,20 @@
 
 QString analyzeHttpPacket(struct Packet * Pindex);
 
+class Ethernet
+{
+public:
+    Ethernet();
+    ~Ethernet();
+    struct ethernet_header *eth_hdr;
+    Ethernet(ethernet_header *eth);
+    u_short type;
+    QString type_str;
+    QString shost_str;
+    QString dhost_str;
+};
+
+
 class IP
 {
 public:

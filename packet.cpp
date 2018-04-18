@@ -52,6 +52,45 @@ QString analyzeHttpPacket(struct Packet *index)
     }
 }
 
+
+Ethernet::~Ethernet()
+{
+
+}
+
+Ethernet::Ethernet(ethernet_header *eth)
+{
+    eth_hdr = eth;
+    mac_address dhost = eth_hdr->ether_dhost;
+    mac_address shost = eth_hdr->ether_shost;
+    type = eth_hdr->ether_type;
+
+    switch(type)
+    {
+    case ETHER_TYPE_IPv4:
+        type_str = QString("IPv4");
+        break;
+    case ETHER_TYPE_IPv6:
+        type_str = QString("IPv6");
+        break;
+    case ETHER_TYPE_ARP:
+        type_str = QString("ARP");
+        break;
+    case ETHER_TYPE_RARP:
+        type_str = QString("RARP");
+        break;
+    default:
+        type_str = QString("UNKNOWN");
+        break;
+    }
+    dhost_str = mactos(dhost);
+    shost_str = mactos(shost);
+    qDebug() << "Type:" << type;
+    qDebug()<<"Dhost:" <<dhost_str;
+    qDebug() << "Shost:" << shost_str;
+}
+
+
 IP::~IP(){}
 
 IP::IP(ip_header *ih)
@@ -224,10 +263,10 @@ ARP::ARP(arp_header *ah)
     sip_addr = iptos(arp_hdr->sip_address);
     dip_addr = iptos(arp_hdr->dip_address);
 
-    qDebug() << "hd_type:" << hd_type;
-    qDebug() << "proto_type： "<< proto_type;
-    qDebug() << "hd_len" << hd_len;
-    qDebug() << "proto_addr_len" << pro_addr_len;
-    qDebug() << "opcode" << opcode;
-    qDebug() << "opcode_str" << opcode_str;
+//    qDebug() << "hd_type:" << hd_type;
+//    qDebug() << "proto_type： "<< proto_type;
+//    qDebug() << "hd_len" << hd_len;
+//    qDebug() << "proto_addr_len" << pro_addr_len;
+//    qDebug() << "opcode" << opcode;
+//    qDebug() << "opcode_str" << opcode_str;
 }
