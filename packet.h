@@ -28,17 +28,21 @@ public:
     struct ip_header *ip_hdr;
     IP(struct ip_header *ih);
 
-    QString ver;
-    QString hdr_len;
-    QString tos;
-    QString tlen;
-    QString flags;
-    QString ttl;
-    QString proto;
-    QString src;
-    QString dst;
-    QString crc;
-    QString ident;
+    u_short ver;
+    u_short hdr_len;
+    u_short tos;
+    u_short tlen;
+    u_short flags;
+    u_short ttl;
+    u_short proto;
+    u_short crc;
+    u_short ident;
+
+    QString tos_str;
+    QString flags_str;
+    QString proto_str;
+    QString src_str;
+    QString dst_str;
 };
 
 class ARP

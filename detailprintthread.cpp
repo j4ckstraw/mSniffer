@@ -56,11 +56,6 @@ void DetailPrintThread::run()
     /* Ethernet Info */
     Ethernet ethInfo = Ethernet(Globe::capPacket.OIndex->ether_header);
 
-//    QString eth_src = mactos(Globe::capPacket.OIndex->ether_header->ether_shost);
-//    QString eth_dst = mactos(Globe::capPacket.OIndex->ether_header->ether_dhost);
-//    QString type = QString(Globe::capPacket.OIndex->ether_header->ether_type);
-//    QString proto = QString(Globe::capPacket.OIndex->Netpro);
-
     strText = QString("Ethernet II, Src: %1, Dst: %2").arg(ethInfo.shost_str,ethInfo.shost_str);
     QStandardItem *etherItem = new QStandardItem(strText);
     childItems.clear();
@@ -111,7 +106,7 @@ void DetailPrintThread::run()
     else if(Globe::capPacket.OIndex->Netpro.compare("IPv4")==0)   // IPv4
     {
         IP ipInfo = IP(Globe::capPacket.OIndex->IPv4_header);
-        strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver,ipInfo.src,ipInfo.dst);
+        strText = QString("Internet Protocol Version %1, Src: %2, Dst: %3").arg(ipInfo.ver).arg(ipInfo.src_str).arg(ipInfo.dst_str);
         QStandardItem *networkItem = new QStandardItem(strText);
         childItems.clear();
         item = new QStandardItem(QString("Version: %1").arg(ipInfo.ver));
@@ -120,19 +115,19 @@ void DetailPrintThread::run()
         childItems.push_back(item);
         item = new QStandardItem(QString("Totol Length: %1").arg(ipInfo.tlen));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Identification: %1").arg(ipInfo.ident));
+        item = new QStandardItem(QString("Identification: 0x%1 (%2)").arg(ipInfo.ident,4,16,QChar('0')).arg(ipInfo.ident));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Flags: %1").arg(ipInfo.flags));
+        item = new QStandardItem(QString("Flags: %1(%2)").arg(ipInfo.flags_str).arg(ipInfo.flags));
         childItems.push_back(item);
         item = new QStandardItem(QString("Time to live： %1").arg(ipInfo.ttl));
         childItems.push_back(item);
         item = new QStandardItem(QString("Protocol: %1").arg(ipInfo.proto));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Header checksum: %1").arg(ipInfo.crc));
+        item = new QStandardItem(QString("Header checksum: 0x%1").arg(ipInfo.crc,4,16,QChar('0')));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Source: %1").arg(ipInfo.src));
+        item = new QStandardItem(QString("Source: %1").arg(ipInfo.src_str));
         childItems.push_back(item);
-        item = new QStandardItem(QString("Destination: %1").arg(ipInfo.dst));
+        item = new QStandardItem(QString("Destination: %1").arg(ipInfo.dst_str));
         childItems.push_back(item);
         networkItem->appendRows(childItems);
         // rootItem->appendRow(networkItem);

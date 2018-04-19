@@ -96,25 +96,47 @@ IP::~IP(){}
 IP::IP(ip_header *ih)
 {
     ip_hdr = ih;
-    ver = QString::number((ntohs(ip_hdr->ver_ihl)&0xf000)>>12);
-    hdr_len =QString::number((ntohs(ip_hdr->ver_ihl)&0x0f00)>>8);
-    tos = QString::number(ntohs(ip_hdr->tos));
-    tlen = QString::number(ntohs(ip_hdr->tlen));
-    flags = QString::number((ntohs(ip_hdr->flags_fo)&0xe000)>>13);
-    ttl = QString::number(ip_hdr->ttl);
-    proto = QString::number(ip_hdr->proto);
-    src = QString("%1.%2.%3.%4")\
+    ver = (ntohs(ip_hdr->ver_ihl)&0xf000)>>12;
+    hdr_len = (ntohs(ip_hdr->ver_ihl)&0x0f00)>>8;
+    tos = ntohs(ip_hdr->tos);
+    tlen = ntohs(ip_hdr->tlen);
+    flags = (ntohs(ip_hdr->flags_fo)&0xe000)>>13;
+    flags_str = QString("");
+    if(flags&0b100) flags_str += QString("Reserved bit set");
+    if(flags&0b010) flags_str += QString("Don't fragment set");
+    if(flags&0b001) flags_str += QString("More fragments set");
+    ttl = ip_hdr->ttl;
+    proto = ip_hdr->proto;
+    switch(proto)
+    {
+    case PROTO_TYPE_ICMP:
+        proto_str = QString("ICMP");
+        break;
+    case PROTO_TYPE_TCP:
+        proto_str = QString("TCP");
+        break;
+    case PROTO_TYPE_UDP:
+        proto_str = QString("UDP");
+        break;
+    case PROTO_TYPE_ICMPv6:
+        proto_str = QString("IPv6");
+        break;
+    default:
+        proto_str = QString("UNKNOWN");
+        break;
+    }
+    src_str = QString("%1.%2.%3.%4")\
             .arg(ip_hdr->saddr.byte1)\
             .arg(ip_hdr->saddr.byte2)\
             .arg(ip_hdr->saddr.byte3)\
             .arg(ip_hdr->saddr.byte4);
-    dst =  QString("%1.%2.%3.%4")\
+    dst_str =  QString("%1.%2.%3.%4")\
             .arg(ip_hdr->daddr.byte1)\
             .arg(ip_hdr->daddr.byte2)\
             .arg(ip_hdr->daddr.byte3)\
             .arg(ip_hdr->daddr.byte4);
-    crc = QString::number(ip_hdr->crc);
-    ident = QString::number(ip_hdr->identification);
+    crc = ip_hdr->crc;
+    ident = ip_hdr->identification;
 //    qDebug() << "############# IP INFO #############";
 //    qDebug() << "Version: " << ver;
 //    qDebug() << "Header len: "<< hdr_len;
