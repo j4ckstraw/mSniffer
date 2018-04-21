@@ -82,7 +82,6 @@ void CaptureThread::run()
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
             Globe::capPacket.Tail->NAname=Dname;
-            qDebug() << "NAname: " << Dname << "   " << QString(name);
             //printf("%d CaptureTime=%d, len:%d\n",Globe::capPacket.Tail->serialnum,Globe::capPacket.Tail->captime,Globe::capPacket.Tail->header->len);
         }
         else

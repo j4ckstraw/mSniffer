@@ -7,8 +7,6 @@
 #include <QDebug>
 
 extern QString file_name;
-extern QStandardItemModel *PacketModel;
-void PrintPacket_on_fly(Packet *Pindex);
 
 OfflineAnalyseThread::OfflineAnalyseThread()
 {
@@ -32,15 +30,9 @@ void OfflineAnalyseThread::run()
                                       errbuf					// error buffer
                                       )) == NULL)
     {
-        // fprintf(stderr,"\nUnable to open the file %s.\n", argv[1]);
         QMessageBox::warning(0,"Warning","Unable to open the file "+file_name);
         return ;
     }
-
-    /* read and dispatch packets until EOF is reached */
-    // pcap_loop(fp, 0, dispatcher_handler, NULL);
-
-
 
     if(!Globe::capPacket.Iniflag)
     {
@@ -48,48 +40,42 @@ void OfflineAnalyseThread::run()
     }
 
     qDebug() << "Start capture in offline";
-
     while(!stopped)
     {
-        struct pcap_pkthdr *header=NULL;//包头
-        const u_char *data=NULL;       //包中数据
+        struct pcap_pkthdr *header=NULL;// header
+        const u_char *data=NULL;       // data
 
         res = pcap_next_ex(adhandle, &header,&data);
 
-        if(res>0 && header!=NULL && data!=NULL)//捕获成功增加节点
+        if(res>0 && header!=NULL && data!=NULL)
         {
             // qDebug() << "Valid file";
             Globe::capPacket.Countpk++;
             Globe::capPacket.AddPacket();
             Globe::capPacket.Tail->Initial();
-            // Globe::capPacket.Tail = Packet;
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
             Globe::capPacket.Tail->NAname="FILE";
-            qDebug() << QString("res is %1").arg(res);
-            //printf("%d CaptureTime=%d, len:%d\n",Globe::capPacket.Tail->serialnum,Globe::capPacket.Tail->captime,Globe::capPacket.Tail->header->len);
+            qDebug() << QString("offline packet is %1").arg(res);
         }
         else if(res == -1)
         {
-            // QMessageBox::warning(0,"Warning","A error occur when pcap_next_ex");
             qDebug()<< "A error occur when pcap_next_ex" ;
             stopped = true;
         }
         else if(res == -2){
-            // QMessageBox::information(0,"Success","Read over");
             qDebug()<< "Read over" ;
             stopped = true;
         }
         else
         {
-            // QMessageBox::warning(0,"Error","Unknown error");
             qDebug()<< "Unknown error" ;
             stopped = true;
         }
     }
 
     stopped = false;
-    emit OfflineStopped();   //告知主界面捕获已停止，可以停止分析线程
+    emit OfflineStopped();
     qDebug() << "emit OfflineStopped";
     pcap_close(adhandle);
     return ;

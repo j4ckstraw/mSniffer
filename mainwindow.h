@@ -23,6 +23,7 @@ public:
     ~MainWindow();
     // void PrintDetaildata(int);
     // void PrintRawdata();
+    void InitPacketModel();
 
 private slots:
     void on_actionQuit_triggered();

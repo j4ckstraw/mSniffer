@@ -31,18 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     packetpriThread.MuxFlag=true;
 
     /*数据包基本信息联机显示列表*/
-#define SIZEOF_HEADER 7
-    PacketModel->setColumnCount(SIZEOF_HEADER);
-    PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
-    PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
-    PacketModel->setHeaderData(2,Qt::Horizontal,QString("     Source     "));
-    PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
-    PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
-    PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
-
-    ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    ui->tableView_packet->setModel(PacketModel);
+    // set packet model
+    InitPacketModel();
 
 //    ui->tableView_packet->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableView_packet->setEditTriggers(QTableView::NoEditTriggers);
@@ -88,6 +78,22 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::InitPacketModel()
+{
+#define SIZEOF_HEADER 7
+    PacketModel->clear();
+    PacketModel->setColumnCount(SIZEOF_HEADER);
+    PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
+    PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
+    PacketModel->setHeaderData(2,Qt::Horizontal,QString("     Source     "));
+    PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
+    PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
+    PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
+    PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
+    ui->tableView_packet->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    ui->tableView_packet->setModel(PacketModel);
+}
+
 void MainWindow::on_actionQuit_triggered()
 {
     if(capThread.isRunning())
@@ -123,14 +129,18 @@ void MainWindow::on_actionStart_triggered()
     ui->actionPause->setEnabled(true);
     ui->actionStop->setEnabled(true);
     ui->actionRestart->setEnabled(true);
+    ui->actionOpen->setEnabled(false);
     if(!capThread.isRunning())
         capThread.start();
     if(!anaThread.isRunning())
         anaThread.start();
     if(!packetpriThread.isRunning())
         packetpriThread.start(QThread::HighPriority);
+// start these threads when trigger packet detail click
 //    if(!detailpriThread.isRunning())
 //        detailpriThread.start();
+//    if(!rawpriThread.isRunning())
+//        rawpriThread.start();
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -140,8 +150,7 @@ void MainWindow::on_actionStop_triggered()
     ui->actionPause->setEnabled(false);
     ui->actionStop->setEnabled(false);
     ui->actionRestart->setEnabled(true);
-    //capThread.wait();
-    //capThread.terminate();
+    ui->actionOpen->setEnabled(true);
     capThread.stop();
 }
 
@@ -152,23 +161,19 @@ void MainWindow::on_actionRestart_triggered()
     ui->actionPause->setEnabled(true);
     ui->actionStop->setEnabled(true);
     ui->actionRestart->setEnabled(true);
+    ui->actionOpen->setEnabled(false);
     capThread.terminate();
+    offThread.terminate();
     anaThread.terminate();
     packetpriThread.terminate();
+    detailpriThread.terminate();
+    rawpriThread.terminate();
+
     // restart clear captured packets.
     Globe::capPacket.DeleteList();
-    PacketModel->clear();
     DetailModel->clear();
     ui->textEdit_raw->clear();
-    PacketModel->setColumnCount(SIZEOF_HEADER);
-    PacketModel->setHeaderData(0,Qt::Horizontal,QString("No."));
-    PacketModel->setHeaderData(1,Qt::Horizontal,QString("  Time  "));
-    PacketModel->setHeaderData(2,Qt::Horizontal,QString("     Source     "));
-    PacketModel->setHeaderData(3,Qt::Horizontal,QString("  Destionation   "));
-    PacketModel->setHeaderData(4,Qt::Horizontal,QString("  Protocol  "));
-    PacketModel->setHeaderData(5,Qt::Horizontal,QString("  Length  "));
-    PacketModel->setHeaderData(6,Qt::Horizontal,QString("                      Info                     "));
-    // PacketModel->setHeaderData(7,Qt::Horizontal,QString("Information2"));
+    InitPacketModel();
     this->UpdatePacketView();
     if(!capThread.isRunning())
         capThread.start();
@@ -176,6 +181,10 @@ void MainWindow::on_actionRestart_triggered()
         anaThread.start();
     if(!packetpriThread.isRunning())
         packetpriThread.start(QThread::HighPriority);
+    if(!detailpriThread.isRunning())
+        detailpriThread.start();
+    if(!rawpriThread.isRunning())
+        rawpriThread.start();
 }
 
 void MainWindow::on_actionPause_triggered()
@@ -227,6 +236,29 @@ void MainWindow::on_actionOpen_triggered()
     file_name = QFileDialog::getOpenFileName(this, "Open a file...","",filter);
     // QMessageBox::information(this,"information","Need to be implement");
     qDebug() << "Open file: " << file_name;
+
+    if (!file_name.isEmpty())
+    {
+        ui->actionStart->setEnabled(true);
+        ui->actionPause->setEnabled(false);
+        ui->actionStop->setEnabled(false);
+        ui->actionRestart->setEnabled(false);
+        capThread.terminate();
+        anaThread.terminate();
+        packetpriThread.terminate();
+        detailpriThread.terminate();
+        offThread.terminate();
+        rawpriThread.terminate();
+        // restart clear captured packets.
+        Globe::capPacket.DeleteList();
+        DetailModel->clear();
+        ui->textEdit_raw->clear();
+        InitPacketModel();
+    }
+    else
+    {
+        return ;
+    }
     if(!offThread.isRunning())
         offThread.start();
     if(!anaThread.isRunning())
@@ -241,6 +273,7 @@ void MainWindow::UpdatePacketView()
     if(PacketModel->rowCount()>0)
     {
         ui->tableView_packet->setModel(PacketModel);
+        // qDebug() << "UpdatePacketView";
     }
     else
     {
@@ -257,6 +290,7 @@ void MainWindow::UpdateDetailView()
     if(DetailModel->rowCount()>0)
     {
         ui->treeView_detail->setModel(DetailModel);
+        qDebug() << "UpdateDetailView";
     }
     else
     {
@@ -269,6 +303,7 @@ void MainWindow::UpdateRawView()
 {
     rawpriThread.MuxFlag = false;
     ui->textEdit_raw->setText(rawText);
+    qDebug() << "UpdateRawView";
     rawpriThread.MuxFlag = true;
 }
 
