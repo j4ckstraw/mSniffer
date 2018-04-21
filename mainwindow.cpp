@@ -8,6 +8,7 @@
 #include "capturethread.h"
 #include "analysethread.h"
 #include "offlineanalysethread.h"
+#include "rawprintthread.h"
 #include <QTableView>
 #include <QFile>
 #include <QFileDialog>
@@ -15,6 +16,7 @@
 QString file_name;
 QStandardItemModel *PacketModel = new QStandardItemModel(); // packet model
 QStandardItemModel *DetailModel = new QStandardItemModel(); // detail model
+QString rawText;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -66,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
     connect(&packetpriThread,SIGNAL(PacketPrintDone()),this,SLOT(UpdatePacketView()));
     connect(&detailpriThread,SIGNAL(DetailPrintDone()),this,SLOT(FlushDetailView()));
+    connect(&rawpriThread,SIGNAL(RawPrintDone()),this,SLOT(UpdateRawView()));
 }
 
 MainWindow::~MainWindow()
@@ -78,80 +81,11 @@ MainWindow::~MainWindow()
         packetpriThread.terminate();
     if(!offThread.isFinished())
         offThread.terminate();
+    if(!detailpriThread.isFinished())
+        detailpriThread.terminate();
+    if(!rawpriThread.isFinished())
+        rawpriThread.terminate();
     delete ui;
-}
-
-//void MainWindow::PrintDetaildata(int sernum)
-//{
-//    ui->treeView_detail->setModel(DetailModel);
-//}
-
-void MainWindow::PrintRawdata()
-{
-    rawdataFlag = false;
-    unsigned int i,k,l;
-    u_char *data=(u_char *)Globe::capPacket.OIndex->pkt_data;
-    QString text;
-    unsigned int spliter;
-    char *c;
-    char buf[4];
-    char textbuf[16+2];
-    memset(buf,0,4);
-    memset(textbuf,0,16+1);
-    spliter = 0;
-
-    //handle the hex content
-    for(i=0;i<Globe::capPacket.OIndex->header.len;i++)
-    {
-        if (spliter == 8) text += "  ";
-        if (spliter == 16)
-        {
-            text += "\t";
-            // handle textbuf
-            c = (char *)&data[-spliter];
-            k=0;
-            for(l = 0;l < spliter;l++)
-            {
-                if (l==8) textbuf[k++] = ' ';
-                if(isprint(*c)) textbuf[k++]=*c;
-                else textbuf[k++] = '.';
-                c++;
-            }
-            textbuf[16+1]='\0';
-            // end handle textbuf
-            text += QString(textbuf);
-            text += "\n";
-            spliter = 0;
-        }
-        sprintf(buf,"%02X ",*data);
-        text += QString(buf);
-        spliter++;
-        data++;
-    } // for
-    //fill the gap
-    for(i = ((16*3) - spliter*3);i;i--) text += " ";
-
-    // append the textbuf
-    text += "\t";
-    // handle textbuf
-    c = (char *)&data[-spliter];
-    k = 0;
-    for(l = 0;l < spliter;l++)
-    {
-        if (l==8) textbuf[k++] = ' ';
-        if(isprint(*c)) textbuf[k++]=*c;
-        else textbuf[k++] = '.';
-        c++;
-    }
-    // end handle textbuf
-    textbuf[spliter<17?spliter:17]='\0';
-    text += QString(textbuf);
-    text += "\n";
-    spliter = 0;
-
-    ui->textEdit_raw->setText(text);
-    // qDebug()<< text;
-    rawdataFlag = true;
 }
 
 void MainWindow::on_actionQuit_triggered()
@@ -260,7 +194,6 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
     QMessageBox::about(this,"About mSniffer", "This is mini Sniffer powered by Qt!\n");
 }
 
-
 void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
     if(!packetpriThread.isRunning())
@@ -278,7 +211,10 @@ void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
         {
             Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
         }
-        PrintRawdata();
+        //PrintRawdata();
+        if(!rawpriThread.isRunning())
+            rawpriThread.start();
+
         if(!detailpriThread.isRunning())
             detailpriThread.start();
     }
@@ -331,6 +267,13 @@ void MainWindow::FlushDetailView()
     detailpriThread.MuxFlag=true;
 }
 
+void MainWindow::UpdateRawView()
+{
+    rawpriThread.MuxFlag = false;
+    ui->textEdit_raw->setText(rawText);
+    qDebug() << "Update RawView";
+    rawpriThread.MuxFlag = true;
+}
 
 void MainWindow::StopPrint()
 {

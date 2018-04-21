@@ -70,7 +70,7 @@ void DetailPrintThread::run()
 
     /* Network Info */
 
-    qDebug() << "Network info:" <<  Globe::capPacket.OIndex->Netpro;
+    // qDebug() << "Network info:" <<  Globe::capPacket.OIndex->Netpro;
 
     if(Globe::capPacket.OIndex->Netpro.compare("ARP")==0)
     {
@@ -233,5 +233,5 @@ void DetailPrintThread::run()
         // DetailModel->appendRow(appItem);
     }// end default
     emit DetailPrintDone();
-    qDebug() << "Message from DetailPrint: Print done.";
+    // qDebug() << "Message from DetailPrint: Print done.";
 }

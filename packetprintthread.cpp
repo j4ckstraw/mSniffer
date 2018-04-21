@@ -51,7 +51,7 @@ void PrintThread::run()
             while(!MuxFlag)//等待打印完成
             {
                 Sleep(1);
-                qDebug() << "Sleep";
+                // qDebug() << "Sleep";
             }
             PrintPacket_on_fly(Globe::capPacket.Pindex);
             emit PacketPrintDone();
@@ -178,11 +178,11 @@ void PrintPacket_on_fly(Packet *Pindex)
 //            PacketModel->setData(PacketModel->index(row,7),s);
             switch(Pindex->ICMP_header->type){
             case ICMP_ECHO:
-                s = QString("Echo Request\n");
+                s = QString("Echo Request");
                 /* XXX ID + Seq + Data */
                 break;
             case ICMP_ECHOREPLY:
-                s = QString("Echo Reply\n");
+                s = QString("Echo Reply");
                 break;
             case ICMP_DEST_UNREACH:
                 switch(Pindex->ICMP_header->code)
@@ -204,44 +204,44 @@ void PrintPacket_on_fly(Packet *Pindex)
                     s = QString("Frag needed and DF set ");
                     break;
                 case ICMP_SR_FAILED:
-                    s = QString("Source Route Failed\n");
+                    s = QString("Source Route Failed");
                     break;
                 case ICMP_NET_UNKNOWN:
-                    s = QString("Destination Net Unknown\n");
+                    s = QString("Destination Net Unknown");
                     break;
                 case ICMP_HOST_UNKNOWN:
-                    s = QString("Destination Host Unknown\n");
+                    s = QString("Destination Host Unknown");
                     break;
                 case ICMP_HOST_ISOLATED:
-                    s = QString("Source Host Isolated\n");
+                    s = QString("Source Host Isolated");
                     break;
                 case ICMP_NET_ANO:
-                    s = QString("Destination Net Prohibited\n");
+                    s = QString("Destination Net Prohibited");
                     break;
                 case ICMP_HOST_ANO:
-                    s = QString("Destination Host Prohibited\n");
+                    s = QString("Destination Host Prohibited");
                     break;
                 case ICMP_NET_UNR_TOS:
-                    s = QString("Destination Net Unreachable for Type of Service\n");
+                    s = QString("Destination Net Unreachable for Type of Service");
                     break;
                 case ICMP_HOST_UNR_TOS:
-                    s = QString("Destination Host Unreachable for Type of Service\n");
+                    s = QString("Destination Host Unreachable for Type of Service");
                     break;
                 case ICMP_PKT_FILTERED:
-                    s = QString("Packet filtered\n");
+                    s = QString("Packet filtered");
                     break;
                 case ICMP_PREC_VIOLATION:
-                    s = QString("Precedence Violation\n");
+                    s = QString("Precedence Violation");
                     break;
                 case ICMP_PREC_CUTOFF:
-                    s = QString("Precedence Cutoff\n");
+                    s = QString("Precedence Cutoff");
                     break;
                 default:
-                    s = QString("Dest Unreachable, Bad Code: %1\n").arg(Pindex->ICMP_header->code);
+                    s = QString("Dest Unreachable, Bad Code: %1").arg(Pindex->ICMP_header->code);
                     break;
                 }// switch code
             case ICMP_SOURCE_QUENCH:
-                s = QString("Source Quench\n");
+                s = QString("Source Quench");
                 break;
             case ICMP_REDIRECT:
                 switch(Pindex->ICMP_header->code) {
@@ -264,38 +264,38 @@ void PrintPacket_on_fly(Packet *Pindex)
             case ICMP_TIME_EXCEEDED:
                 switch(Pindex->ICMP_header->code) {
                 case ICMP_EXC_TTL:
-                    s = QString("Time to live exceeded\n");
+                    s = QString("Time to live exceeded");
                     break;
                 case ICMP_EXC_FRAGTIME:
-                    s = QString("Frag reassembly time exceeded\n");
+                    s = QString("Frag reassembly time exceeded");
                     break;
                 default:
-                    s = QString("Time exceeded, Bad Code: %1\n").arg(Pindex->ICMP_header->code);
+                    s = QString("Time exceeded, Bad Code: %1").arg(Pindex->ICMP_header->code);
                     break;
                 }
                 break;
             case ICMP_PARAMETERPROB:
-                // s = QString("Parameter problem: pointer = %1\n").arg(icp ? (ntohl(icp->un.gateway)>>24) : info);
-                s = QString("Parameter problem\n");
+                // s = QString("Parameter problem: pointer = %1").arg(icp ? (ntohl(icp->un.gateway)>>24) : info);
+                s = QString("Parameter problem");
                 break;
             case ICMP_TIMESTAMP:
-                s = QString("Timestamp\n");
+                s = QString("Timestamp");
                 /* XXX ID + Seq + 3 timestamps */
                 break;
             case ICMP_TIMESTAMPREPLY:
-                s = QString("Timestamp Reply\n");
+                s = QString("Timestamp Reply");
                 /* XXX ID + Seq + 3 timestamps */
                 break;
             case ICMP_INFO_REQUEST:
-                s = QString("Information Request\n");
+                s = QString("Information Request");
                 /* XXX ID + Seq */
                 break;
             case ICMP_INFO_REPLY:
-                s = QString("Information Reply\n");
+                s = QString("Information Reply");
                 /* XXX ID + Seq */
                 break;
             default:
-                    s = QString("Bad ICMP type: %1\n").arg(Pindex->ICMP_header->type);
+                    s = QString("Bad ICMP type: %1").arg(Pindex->ICMP_header->type);
             }//switch type
             PacketModel->setData(PacketModel->index(row,6),s);
         }

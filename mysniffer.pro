@@ -41,7 +41,8 @@ SOURCES += \
     analysethread.cpp \
     offlineanalysethread.cpp \
     packetprintthread.cpp \
-    detailprintthread.cpp
+    detailprintthread.cpp \
+    rawprintthread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     analysethread.h \
     offlineanalysethread.h \
     packetprintthread.h \
-    detailprintthread.h
+    detailprintthread.h \
+    rawprintthread.h
 
 FORMS += \
         mainwindow.ui \

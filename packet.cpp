@@ -85,9 +85,9 @@ Ethernet::Ethernet(ethernet_header *eth)
     }
     dhost_str = mactos(dhost);
     shost_str = mactos(shost);
-    qDebug() << "Type:" << type;
-    qDebug()<<"Dhost:" <<dhost_str;
-    qDebug() << "Shost:" << shost_str;
+//    qDebug() << "Type:" << type;
+//    qDebug()<<"Dhost:" <<dhost_str;
+//    qDebug() << "Shost:" << shost_str;
 }
 
 

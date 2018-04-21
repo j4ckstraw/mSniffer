@@ -113,7 +113,7 @@ void AnalyzeIP()//分析IP报头
         else if(Globe::capPacket.Index->IPv4_header->proto==PROTO_TYPE_TCP)//TCP
         {
             //HTTP
-            qDebug() << "Analyze TCP";
+            // qDebug() << "Analyze TCP";
             Globe::capPacket.TCP_Countpk++;
             Globe::capPacket.Index->Transpro=QString("TCP");
             Globe::capPacket.Index->TCP_header=(tcp_header *)(dataIndex+IP_len*4);
@@ -123,7 +123,7 @@ void AnalyzeIP()//分析IP报头
                     (ntohs(Globe::capPacket.Index->TCP_header->sport) == 80 \
                      ||  ntohs(Globe::capPacket.Index->TCP_header->dport) == 80))
             {
-                qDebug() << "AnalyzeHTTP in analyzeIP";
+                // qDebug() << "AnalyzeHTTP in analyzeIP";
                 analyzeHttpPacket(Globe::capPacket.Index);
             }
         }
