@@ -29,6 +29,7 @@ void CaptureThread::run()
     Filter filter;
     int res;
     const char *name = devicesName.at(interface_selected).toStdString().c_str();
+    QString Dname = QString(name);
     qDebug() << QString("device name: %1").arg(name);
     /* Open the adapter */
     if ( (adhandle= pcap_open(name,   // 设备名
@@ -80,7 +81,8 @@ void CaptureThread::run()
             Globe::capPacket.Tail->Initial();
             Globe::capPacket.Tail->serialnum=Globe::capPacket.Countpk;
             Globe::capPacket.Tail->copy(header,(u_char *)data);
-            Globe::capPacket.Tail->NAname=QString(name);
+            Globe::capPacket.Tail->NAname=Dname;
+            qDebug() << "NAname: " << Dname << "   " << QString(name);
             //printf("%d CaptureTime=%d, len:%d\n",Globe::capPacket.Tail->serialnum,Globe::capPacket.Tail->captime,Globe::capPacket.Tail->header->len);
         }
         else
