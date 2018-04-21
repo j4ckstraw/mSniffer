@@ -234,4 +234,5 @@ void DetailPrintThread::run()
     }// end default
     emit DetailPrintDone();
     // qDebug() << "Message from DetailPrint: Print done.";
+    qDebug() << "emit DetailPrintDone";
 }

@@ -35,7 +35,7 @@ private slots:
 
     // void StartOrStopThread();
     void UpdatePacketView();
-    void FlushDetailView();
+    void UpdateDetailView();
     void UpdateRawView();
     void StopPrint();
     void StopAnalyze();

@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
     connect(&anaThread,SIGNAL(AnalyzeStopped()),this,SLOT(StopPrint()));
     connect(&packetpriThread,SIGNAL(PacketPrintDone()),this,SLOT(UpdatePacketView()));
-    connect(&detailpriThread,SIGNAL(DetailPrintDone()),this,SLOT(FlushDetailView()));
+    connect(&detailpriThread,SIGNAL(DetailPrintDone()),this,SLOT(UpdateDetailView()));
     connect(&rawpriThread,SIGNAL(RawPrintDone()),this,SLOT(UpdateRawView()));
 }
 
@@ -196,28 +196,27 @@ void MainWindow::on_actionAbout_mSniffer_triggered()
 
 void MainWindow::on_tableView_packet_clicked(const QModelIndex &index)
 {
-    if(!packetpriThread.isRunning())
-    {
-        int row=index.row();//б
-        ui->tableView_packet->selectRow(row);
-        unsigned int sernum = PacketModel->index(row,0).data().toInt();
-        if(sernum == 0 )
-        {
-            QMessageBox::warning(0,"Warning","Sernum is 0");
-            return ;
-        }
-        Globe::capPacket.OIndex=Globe::capPacket.Head;
-        while(Globe::capPacket.OIndex->serialnum!=sernum)
-        {
-            Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
-        }
-        //PrintRawdata();
-        if(!rawpriThread.isRunning())
-            rawpriThread.start();
 
-        if(!detailpriThread.isRunning())
-            detailpriThread.start();
+    int row=index.row();
+    ui->tableView_packet->selectRow(row);
+    unsigned int sernum = PacketModel->index(row,0).data().toInt();
+    if(sernum == 0 )
+    {
+        QMessageBox::warning(0,"Warning","Sernum is 0");
+        return ;
     }
+    Globe::capPacket.OIndex=Globe::capPacket.Head;
+    while(Globe::capPacket.OIndex->serialnum!=sernum)
+    {
+        Globe::capPacket.OIndex=Globe::capPacket.OIndex->Next;
+    }
+
+    if(!rawpriThread.isRunning())
+        rawpriThread.start();
+
+    if(!detailpriThread.isRunning())
+        detailpriThread.start();
+
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -250,14 +249,13 @@ void MainWindow::UpdatePacketView()
     packetpriThread.MuxFlag=true;
 }
 
-void MainWindow::FlushDetailView()
+void MainWindow::UpdateDetailView()
 {
     detailpriThread.MuxFlag=false;
     ui->treeView_detail->setHeaderHidden(true);
     ui->treeView_detail->setEditTriggers(QTableView::NoEditTriggers);
     if(DetailModel->rowCount()>0)
     {
-//        while(!detailpriThread.isFinished()) Sleep(1);
         ui->treeView_detail->setModel(DetailModel);
     }
     else
@@ -271,7 +269,6 @@ void MainWindow::UpdateRawView()
 {
     rawpriThread.MuxFlag = false;
     ui->textEdit_raw->setText(rawText);
-    qDebug() << "Update RawView";
     rawpriThread.MuxFlag = true;
 }
 

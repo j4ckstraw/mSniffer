@@ -58,7 +58,7 @@ void OfflineAnalyseThread::run()
 
         if(res>0 && header!=NULL && data!=NULL)//捕获成功增加节点
         {
-            qDebug() << "Valid file";
+            // qDebug() << "Valid file";
             Globe::capPacket.Countpk++;
             Globe::capPacket.AddPacket();
             Globe::capPacket.Tail->Initial();
@@ -90,7 +90,7 @@ void OfflineAnalyseThread::run()
 
     stopped = false;
     emit OfflineStopped();   //告知主界面捕获已停止，可以停止分析线程
-    qDebug() << "Stop offline capture, emit OfflinesStopped";
+    qDebug() << "emit OfflineStopped";
     pcap_close(adhandle);
     return ;
 }

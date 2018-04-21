@@ -22,8 +22,6 @@ void RawPrintThread::stop()
 
 void RawPrintThread::run()
 {
-    // qDebug() << "RawPrintThread start";
-    // rawdataFlag = false;
     unsigned int i,k,l;
     u_char *data=(u_char *)Globe::capPacket.OIndex->pkt_data;
     rawText = QString("");
@@ -83,10 +81,6 @@ void RawPrintThread::run()
     rawText += QString(textbuf);
     rawText += "\n";
     spliter = 0;
-
-    // ui->textEdit_raw->setText(rawText);
-    // qDebug()<< text;
-    // rawdataFlag = true;
     emit RawPrintDone();
     qDebug() << "emit RawPrintDone";
 }
