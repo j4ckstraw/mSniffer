@@ -31,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
     rawdataFlag=false;
     packetpriThread.MuxFlag=true;
 
-    /*数据包基本信息联机显示列表*/
     // set packet model
     InitPacketModel();
 
@@ -40,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView_packet->verticalHeader()->setVisible(false);
     ui->tableView_packet->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    //数据包主要信息显示的样式设置为黄蓝间隔
+    //packet view style
     ui->tableView_packet->setAlternatingRowColors(true);
     ui->tableView_packet->setStyleSheet("QTableView{background-color: rgb(250, 250, 115);"
                                         "alternate-background-color: rgb(141, 163, 215);}");
@@ -51,8 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionStop->setEnabled(false);
     ui->actionRestart->setEnabled(false);
 
-//    chosedialog = new InterfacesDialog();
-//    chosedialog->show();
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
@@ -166,23 +163,19 @@ void MainWindow::on_actionRestart_triggered()
     packetpriThread.terminate();
     detailpriThread.terminate();
     rawpriThread.terminate();
-
     // restart clear captured packets.
     Globe::capPacket.DeleteList();
+    Globe::capPacket.Iniflag = false;
     DetailModel->clear();
     ui->textEdit_raw->clear();
     InitPacketModel();
-    this->UpdatePacketView();
+    // this->UpdatePacketView();
     if(!capThread.isRunning())
         capThread.start();
     if(!anaThread.isRunning())
         anaThread.start();
     if(!packetpriThread.isRunning())
         packetpriThread.start(QThread::HighPriority);
-    if(!detailpriThread.isRunning())
-        detailpriThread.start();
-    if(!rawpriThread.isRunning())
-        rawpriThread.start();
 }
 
 void MainWindow::on_actionPause_triggered()
@@ -268,7 +261,6 @@ void MainWindow::on_actionOpen_triggered()
         packetpriThread.start();
 }
 
-
 void MainWindow::on_actionSave_triggered()
 {
     QFile file(file_name);
@@ -285,7 +277,6 @@ void MainWindow::on_actionSave_triggered()
     file.flush();
     file.close();
 }
-
 
 void MainWindow::UpdatePacketView()
 {

@@ -2,6 +2,7 @@
 #include "ui_interfacesdialog.h"
 #include <QtWidgets/QPushButton>
 #include <QStandardItemModel>
+#include <QMessageBox>
 #include <QList>
 #include "common.h"
 #include <QDebug>
@@ -17,7 +18,6 @@ extern QString captureFilterString;
 QList<QString> devicesName;
 static int ready_to_selected;
 
-
 InterfacesDialog::InterfacesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::interfacesDialog)
@@ -29,13 +29,12 @@ InterfacesDialog::InterfacesDialog() :
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
-    // display filter
+    // capture filter
     ui->lineEdit_filter->setText(captureFilterString);
 
     // disble OK button
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     setWindowTitle("Chose Interface");
-
     interface_selected = -1;
 
     QStandardItemModel *AdaperInfo = new QStandardItemModel();
@@ -45,22 +44,18 @@ InterfacesDialog::InterfacesDialog() :
 
     pcap_if_t *d;
     pcap_addr_t *a;
-#ifndef __MINGW32__ /* Cygnus doesn't have IPv6 */
-    char ip6str[128];
-#endif
     int adaper_count=0;
     QString strText;
 
-//        if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
-//        {
-//            fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
-//            return 0;
-//        }
-
+    //        if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
+    //        {
+    //            fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+    //            return ;
+    //        }
     if(pcap_findalldevs(&alldevs, errbuf) == -1)
     {
-        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
-        // return -1;
+        QMessageBox::warning(this,"Error","Error found in pcap_findalldevs\n");
+        return ;
     }
 
     for(d=alldevs; d; d=d->next,adaper_count++)
@@ -91,47 +86,38 @@ InterfacesDialog::InterfacesDialog() :
             switch(a->addr->sa_family)
             {
             case AF_INET:
-                strText +="Address Family Name: AF_INET; ";
+                strText +=" Address Family Name: AF_INET; ";
                 if (a->addr)
                 {
-                    strText +="Address: ";
+                    strText +=" Address: ";
                     strText += iptos(((struct sockaddr_in *)a->addr)->sin_addr.s_addr);
                     strText += "; ";
-
                 }
                 if (a->netmask)
                 {
-                    strText += "Netmask: ";
+                    strText += " Netmask: ";
                     strText += iptos(((struct sockaddr_in *)a->netmask)->sin_addr.s_addr);
                     strText += "; ";
                 }
                 if (a->broadaddr)
                 {
-                    strText += "Broadcast Address: ";
+                    strText += " Broadcast Address: ";
                     strText += iptos(((struct sockaddr_in *)a->broadaddr)->sin_addr.s_addr);
                     strText += "; ";
                 }
                 if (a->dstaddr)
                 {
-                    strText += "Destination Address: ";
+                    strText += " Destination Address: ";
                     strText += iptos(((struct sockaddr_in *)a->dstaddr)->sin_addr.s_addr);
                     strText += "; ";
                 }
                 break;
             case AF_INET6:
-                strText +="Address Family Name: AF_INET6";
+                strText +=" Address Family Name: AF_INET6";
                 strText += "; ";
-#ifndef __MINGW32__ /* Cygnus doesn't have IPv6 */
-                if (a->addr)
-                {
-                    strText += "Address: ";
-                    strText += ip6tos(a->addr,ip6str,sizeof(ip6str));
-                    strText += "; ";
-                }
-#endif
                 break;
             default:
-                strText += "Address Family Name: Unknown";
+                strText += " Address Family Name: Unknown";
                 strText += "; ";
                 break;
             }// end switch
@@ -170,8 +156,8 @@ void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
             strText=index.parent().parent().data().toString().split(' ')[1];
         else strText=s;
     }
-     ready_to_selected=devicesName.indexOf(strText);
-     return;
+    ready_to_selected=devicesName.indexOf(strText);
+    return;
 }
 
 void InterfacesDialog::on_buttonBox_accepted()
@@ -182,18 +168,18 @@ void InterfacesDialog::on_buttonBox_accepted()
     qDebug() << "SELECTED INTERFACE: " << interface_selected;
     qDebug() << "SELECTED DEVICE NAME: " << devicesName.at(interface_selected);
 
-//    qDebug() << "See HERE";
-//    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
-//    {
-//        qDebug() << "############ start ###########";
-//        qDebug() << interf.humanReadableName();
-//        qDebug() << interf.name();
-//        qDebug() << interf.hardwareAddress();
-//        qDebug() << "############# end ##############";
-//    }
+    //    qDebug() << "See HERE";
+    //    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
+    //    {
+    //        qDebug() << "############ start ###########";
+    //        qDebug() << interf.humanReadableName();
+    //        qDebug() << interf.name();
+    //        qDebug() << interf.hardwareAddress();
+    //        qDebug() << "############# end ##############";
+    //    }
 
-//    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
-//    qDebug() << "interface name: ",
-//    qDebug() << inf.humanReadableName();
+    //    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
+    //    qDebug() << "interface name: ",
+    //    qDebug() << inf.humanReadableName();
 
 }
