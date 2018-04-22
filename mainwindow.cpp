@@ -237,12 +237,15 @@ void MainWindow::on_actionOpen_triggered()
     // QMessageBox::information(this,"information","Need to be implement");
     qDebug() << "Open file: " << file_name;
 
+    // 这个判断有问题。
     if (!file_name.isEmpty())
     {
         ui->actionStart->setEnabled(true);
         ui->actionPause->setEnabled(false);
         ui->actionStop->setEnabled(false);
         ui->actionRestart->setEnabled(false);
+        // disable save function
+        ui->actionSave->setEnabled(false);
         capThread.terminate();
         anaThread.terminate();
         packetpriThread.terminate();
@@ -266,6 +269,25 @@ void MainWindow::on_actionOpen_triggered()
     if(!packetpriThread.isRunning())
         packetpriThread.start();
 }
+
+
+void MainWindow::on_actionSave_triggered()
+{
+    QFile file(file_name);
+    if(!file.open(QFile::WriteOnly | QFile::Text)){
+        QMessageBox::warning(this, "...", "file not open");
+        // on_actionSave_as_triggered();
+    }
+//    QTextStream out(&file);
+
+//    QString text = ui->textEdit->toPlainText();
+//    out << text;
+    QMessageBox::information(0,"Information","This function needed to be implement");
+
+    file.flush();
+    file.close();
+}
+
 
 void MainWindow::UpdatePacketView()
 {
