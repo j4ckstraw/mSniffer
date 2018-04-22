@@ -7,7 +7,7 @@
 #include "packetprintthread.h"
 #include "capturethread.h"
 #include "analysethread.h"
-#include "offlineanalysethread.h"
+#include "offlinecapturethread.h"
 #include "rawprintthread.h"
 #include <QTableView>
 #include <QFile>
@@ -17,6 +17,7 @@ QString file_name;
 QStandardItemModel *PacketModel = new QStandardItemModel(); // packet model
 QStandardItemModel *DetailModel = new QStandardItemModel(); // detail model
 QString rawText;
+extern int interface_selected;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -50,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionStop->setEnabled(false);
     ui->actionRestart->setEnabled(false);
 
-    chosedialog = new InterfacesDialog();
-    chosedialog->show();
+//    chosedialog = new InterfacesDialog();
+//    chosedialog->show();
 
     connect(&capThread,SIGNAL(CaptureStopped()),this,SLOT(StopAnalyze()));
     connect(&offThread,SIGNAL(OfflineStopped()),this,SLOT(StopAnalyze()));
@@ -111,20 +112,17 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionRefresh_Interfaces_triggered()
 {
-    if(!chosedialog)
-    {
-        chosedialog = new InterfacesDialog();
-        chosedialog->show();
-    }
-    else
-    {
-        chosedialog->show();
-        chosedialog->activateWindow();
-    }
+    chosedialog = new InterfacesDialog();
+    chosedialog->show();
 }
 
 void MainWindow::on_actionStart_triggered()
 {
+    if (interface_selected == -1)
+    {
+        QMessageBox::warning(this,"Select a interface","Please select a interface first\n");
+        return ;
+    }
     ui->actionStart->setEnabled(false);
     ui->actionPause->setEnabled(true);
     ui->actionStop->setEnabled(true);

@@ -6,7 +6,7 @@
 #include "analysethread.h"
 #include "packetprintthread.h"
 #include "interfacesdialog.h"
-#include "offlineanalysethread.h"
+#include "offlinecapturethread.h"
 #include "detailprintthread.h"
 #include "rawprintthread.h"
 
@@ -57,7 +57,7 @@ private:
     CaptureThread capThread;//捕获数据包线程
     AnalyseThread anaThread;//分析数据包线程
     PrintThread packetpriThread;//实时打印数据包信息线程
-    OfflineAnalyseThread offThread;
+    OfflineCaptureThread offThread;
     DetailPrintThread detailpriThread;
     RawPrintThread rawpriThread;
     int comboindex;//选择过滤方式下拉表框
