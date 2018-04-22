@@ -212,17 +212,19 @@ void DetailPrintThread::run()
         strText = "Hypertext Transfer Protocol";
         QStandardItem *appItem = new QStandardItem(strText);
 
-        QString http_txt = analyzeHttpPacket(Globe::capPacket.Pindex);
+        QString http_txt = analyzeHttpPacket(Globe::capPacket.OIndex);
         HTTP httpInfo = HTTP(http_txt);
         childItems.clear();
         if (!httpInfo.httpMethod.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpMethod)));
         if (!httpInfo.httpResponse.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpResponse)));
         if (!httpInfo.httpHost.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
-        if (!httpInfo.httpConnection.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpHost)));
+        if (!httpInfo.httpConnection.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpConnection)));
         if (!httpInfo.httpUserAgent.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpUserAgent)));
         if (!httpInfo.httpAccept.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpAccept)));
+        if (!httpInfo.httpCacheControl.isEmpty()) childItems.push_back(new QStandardItem(QString(httpInfo.httpCacheControl)));
+        // childItems.push_back(new QStandardItem(QString("test")));
         appItem->appendRows(childItems);
-        //rootItem->appendRow(appItem);
+        //rootItem->appendRow(appItem);  
         DetailModel->appendRow(appItem);
     }// end HTTP
     else  // default

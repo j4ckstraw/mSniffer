@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     MainWindow w;
-    interface_selected = 0;  //defalut is the first interface
+    interface_selected = -1;  //defalut is the first interface
     w.show();
 
     // release resources before return;

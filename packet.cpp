@@ -208,6 +208,14 @@ UDP::UDP(udp_header *uh)
 //    qDebug() << "Checksum: "<< crc;
 }
 
+QString escape(QString origin)
+{
+    QString replaced(origin);
+    replaced.replace(QString("\r"),QString("\\r"));
+    replaced.replace(QString("\n"),QString("\\n"));
+    return replaced;
+}
+
 HTTP::HTTP(){}
 HTTP::~HTTP(){}
 HTTP::HTTP(QString text)
@@ -234,6 +242,22 @@ HTTP::HTTP(QString text)
     if (httpUserAgentReg.indexIn(text) > -1)      httpUserAgent = httpUserAgentReg.cap(0);
     if (httpAcceptReg.indexIn(text) > -1)         httpAccept = httpAcceptReg.cap(0);
     if (httpResponseReg.indexIn(text) > -1)       httpResponse = httpResponseReg.cap(0);
+
+    httpMethod = escape(httpMethod);
+    httpHost = escape(httpHost);
+    httpConnection = escape(httpConnection);
+    httpCacheControl = escape(httpCacheControl);
+    httpUserAgent = escape(httpUserAgent);
+    httpAccept = escape(httpAccept);
+    httpResponse = escape(httpResponse);
+
+//    qDebug() << "httpInfo method:" << httpMethod;
+//    qDebug() << "httpInfo Response:" << httpResponse;
+//    qDebug() << "httpInfo host:" << httpHost;
+//    qDebug() << "httpInfo connection:" << httpConnection;
+//    qDebug() << "httpInfo cachecontrol:" << httpCacheControl;
+//    qDebug() << "httpInfo UserAgent:" << httpUserAgent;
+//    qDebug() << "httpInfo Accept:" << httpAccept;
 }
 
 ARP::~ARP()

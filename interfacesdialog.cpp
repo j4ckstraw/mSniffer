@@ -36,8 +36,7 @@ InterfacesDialog::InterfacesDialog() :
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     setWindowTitle("Chose Interface");
 
-    //defalut is the first interface
-    interface_selected = 0;
+    interface_selected = -1;
 
     QStandardItemModel *AdaperInfo = new QStandardItemModel();
     QStandardItem *rootitem = new QStandardItem("Available Adapers");
