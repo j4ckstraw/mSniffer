@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("mSniffer");
+    setWindowIcon(QIcon(":/icons/favicon.png"));
     startFlag=false;
     comboindex=0;
     selnum=-1;

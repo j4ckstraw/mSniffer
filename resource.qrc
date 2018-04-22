@@ -11,5 +11,6 @@
         <file>icons/rewind.ico</file>
         <file>icons/shuffle.ico</file>
         <file>icons/stop.ico</file>
+        <file>icons/favicon.png</file>
     </qresource>
 </RCC>
