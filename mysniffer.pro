@@ -39,10 +39,10 @@ SOURCES += \
     filter.cpp \
     capturethread.cpp \
     analysethread.cpp \
-    offlineanalysethread.cpp \
     packetprintthread.cpp \
     detailprintthread.cpp \
-    rawprintthread.cpp
+    rawprintthread.cpp \
+    offlinecapturethread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -52,10 +52,10 @@ HEADERS += \
     filter.h \
     capturethread.h \
     analysethread.h \
-    offlineanalysethread.h \
     packetprintthread.h \
     detailprintthread.h \
-    rawprintthread.h
+    rawprintthread.h \
+    offlinecapturethread.h
 
 FORMS += \
         mainwindow.ui \

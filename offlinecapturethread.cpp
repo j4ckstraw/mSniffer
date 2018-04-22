@@ -1,4 +1,4 @@
-#include "offlineanalysethread.h"
+#include "offlinecapturethread.h"
 #include "filter.h"
 #include "common.h"
 #include <QMessageBox>
@@ -8,18 +8,18 @@
 
 extern QString file_name;
 
-OfflineAnalyseThread::OfflineAnalyseThread()
+OfflineCaptureThread::OfflineCaptureThread()
 {
     stopped = false;
 }
-OfflineAnalyseThread::~OfflineAnalyseThread(){}
+OfflineCaptureThread::~OfflineCaptureThread(){}
 
-void OfflineAnalyseThread::stop()
+void OfflineCaptureThread::stop()
 {
     stopped = true;
 }
 
-void OfflineAnalyseThread::run()
+void OfflineCaptureThread::run()
 {
     int res;
     pcap_t *adhandle;

@@ -4,13 +4,13 @@
 #include "pcap.h"
 #include <QThread>
 
-class OfflineAnalyseThread : public QThread
+class OfflineCaptureThread : public QThread
 {
     Q_OBJECT
 
 public:
-    OfflineAnalyseThread();
-    ~OfflineAnalyseThread();
+    OfflineCaptureThread();
+    ~OfflineCaptureThread();
     void stop();
 
 signals:

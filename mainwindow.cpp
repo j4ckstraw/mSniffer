@@ -7,7 +7,7 @@
 #include "packetprintthread.h"
 #include "capturethread.h"
 #include "analysethread.h"
-#include "offlineanalysethread.h"
+#include "offlinecapturethread.h"
 #include "rawprintthread.h"
 #include <QTableView>
 #include <QFile>
