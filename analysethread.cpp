@@ -22,16 +22,16 @@ void AnalyseThread::run()
     {
         while(Globe::capPacket.Index && Globe::capPacket.Tail && Globe::capPacket.Index!=Globe::capPacket.Tail)
         {
-            if(!Globe::capPacket.Index->Aflag && Globe::capPacket.Index->serialnum>0)//此包没有被分析过且不是初始节点
+            if(!Globe::capPacket.Index->Aflag && Globe::capPacket.Index->serialnum>0)
             {
-                AnalyzeEthernet();//调用分析函数
+                AnalyzeEthernet();
                 Globe::capPacket.Index->Aflag=true;
             }
             Globe::capPacket.Index=Globe::capPacket.Index->Next;
         }
         Sleep(1);
     }
-    while(Globe::capPacket.Index && Globe::capPacket.Tail && Globe::capPacket.Index!=Globe::capPacket.Tail)//停止信号发送后可能还有数据包未分析
+    while(Globe::capPacket.Index && Globe::capPacket.Tail && Globe::capPacket.Index!=Globe::capPacket.Tail)
     {
         if(!Globe::capPacket.Index->Aflag && Globe::capPacket.Index->serialnum>0)
         {
@@ -40,13 +40,13 @@ void AnalyseThread::run()
         }
         Globe::capPacket.Index=Globe::capPacket.Index->Next;
     }
-    if(Globe::capPacket.Index!=NULL)//分析最后一个数据包
+    if(Globe::capPacket.Index!=NULL)
     {
         AnalyzeEthernet();
         Globe::capPacket.Index->Aflag=true;
     }
     stopped = false;
-    emit AnalyzeStopped();//告知主界面分析已停止，可以停止打印线程
+    emit AnalyzeStopped();
     qDebug() << "emit AnalyzeStopped";
     return ;
 }

@@ -88,16 +88,11 @@ void PrintPacket_on_fly(Packet *Pindex)
     u_short dst_port;
     int row=PacketModel->rowCount();
     PacketModel->insertRow(row,QModelIndex());
-
-    s.setNum(Pindex->serialnum);//序列号
+    s.setNum(Pindex->serialnum);// sequence num
     PacketModel->setData(PacketModel->index(row,0),s);
-
-    s=Pindex->timestamp;//捕获时间
+    s=Pindex->timestamp;//capture time
     PacketModel->setData(PacketModel->index(row,1),s);
-
     u_short k=Pindex->ether_header->ether_type;
-
-    // if(k==ETHER_TYPE_IPv4)//IPv4
     if (Pindex->Netpro.compare("IPv4")==0)
     {
         if(Pindex->IPv4_header==NULL)
@@ -112,13 +107,10 @@ void PrintPacket_on_fly(Packet *Pindex)
             s = iptos(Pindex->IPv4_header->daddr);
             PacketModel->setData(PacketModel->index(row,3),s);
         }
-
-        // if(Pindex->IPv4_header->proto==PROTO_TYPE_UDP)//UDP
         if(Pindex->Transpro.compare("UDP") == 0)
         {
             s=QString("UDP");
             PacketModel->setData(PacketModel->index(row,4),s);
-
             if(Pindex->UDP_header==NULL)
             {
                 PacketModel->setData(PacketModel->index(row,4),"UNKNOWN");
@@ -133,7 +125,6 @@ void PrintPacket_on_fly(Packet *Pindex)
                 PacketModel->setData(PacketModel->index(row,6),s);
             }
         }
-        // else if(Pindex->IPv4_header->proto==PROTO_TYPE_TCP)//TCP
         else if(Pindex->Transpro.compare("TCP") == 0)
         {
             s=QString("TCP");
@@ -171,10 +162,6 @@ void PrintPacket_on_fly(Packet *Pindex)
         {
             s=QString("ICMP");
             PacketModel->setData(PacketModel->index(row,4),s);
-
-//            s="UNKNOWN";
-//            PacketModel->setData(PacketModel->index(row,6),s);
-//            PacketModel->setData(PacketModel->index(row,7),s);
             switch(Pindex->ICMP_header->type){
             case ICMP_ECHO:
                 s = QString("Echo Request");
@@ -311,41 +298,30 @@ void PrintPacket_on_fly(Packet *Pindex)
     else if(k==ETHER_TYPE_IPv6)//IPv6
     {
         s = ip6tos(Pindex->IPv6_header->source_ip);
-        //s=QString("%1.%2.%3.%4.%5.%6.%7.%8.%9.%10.%11.%12.%13.%14.%15.%16").arg(Pindex->IPv6_header->source_ip.byte1).arg(Pindex->IPv6_header->source_ip.byte2).arg(Pindex->IPv6_header->source_ip.byte3).arg(Pindex->IPv6_header->source_ip.byte4).arg(Pindex->IPv6_header->source_ip.byte5).arg(Pindex->IPv6_header->source_ip.byte6).arg(Pindex->IPv6_header->source_ip.byte7).arg(Pindex->IPv6_header->source_ip.byte8).arg(Pindex->IPv6_header->source_ip.byte9).arg(Pindex->IPv6_header->source_ip.byte10).arg(Pindex->IPv6_header->source_ip.byte11).arg(Pindex->IPv6_header->source_ip.byte12).arg(Pindex->IPv6_header->source_ip.byte13).arg(Pindex->IPv6_header->source_ip.byte14).arg(Pindex->IPv6_header->source_ip.byte15).arg(Pindex->IPv6_header->source_ip.byte16);
-        PacketModel->setData(PacketModel->index(row,2),s);//源IP
-
+        PacketModel->setData(PacketModel->index(row,2),s);//source ip
         s = ip6tos(Pindex->IPv6_header->dest_ip);
-        // s=QString("%1.%2.%3.%4.%5.%6.%7.%8.%9.%10.%11.%12.%13.%14.%15.%16").arg(Pindex->IPv6_header->dest_ip.byte1).arg(Pindex->IPv6_header->dest_ip.byte2).arg(Pindex->IPv6_header->dest_ip.byte3).arg(Pindex->IPv6_header->dest_ip.byte4).arg(Pindex->IPv6_header->dest_ip.byte5).arg(Pindex->IPv6_header->dest_ip.byte6).arg(Pindex->IPv6_header->dest_ip.byte7).arg(Pindex->IPv6_header->dest_ip.byte8).arg(Pindex->IPv6_header->dest_ip.byte9).arg(Pindex->IPv6_header->dest_ip.byte10).arg(Pindex->IPv6_header->dest_ip.byte11).arg(Pindex->IPv6_header->dest_ip.byte12).arg(Pindex->IPv6_header->dest_ip.byte13).arg(Pindex->IPv6_header->dest_ip.byte14).arg(Pindex->IPv6_header->dest_ip.byte15).arg(Pindex->IPv6_header->dest_ip.byte16);
-        PacketModel->setData(PacketModel->index(row,3),s);//目的IP
-
+        PacketModel->setData(PacketModel->index(row,3),s);//destination ip
         PacketModel->setData(PacketModel->index(row,4),Globe::capPacket.Pindex->Netpro);
 
-        s.setNum(Pindex->header.len);//包长
+        s.setNum(Pindex->header.len);
         PacketModel->setData(PacketModel->index(row,5),s);
 
         long t=ntohl(Pindex->IPv6_header->load_length);
-        s=QString("%1%2").arg(("payload length: ")).arg(t);//报要1
-
-//        s=QString("");//报要2
-//        PacketModel->setData(PacketModel->index(row,7),s);
+        s=QString("%1%2").arg(("payload length: ")).arg(t);
 
     } //IPv6
     else if(k==ETHER_TYPE_ARP)//ARP
     {
         s = iptos(Pindex->ARP_header->sip_address);
-        // s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);
-        PacketModel->setData(PacketModel->index(row,2),s);//源IP
-
+        PacketModel->setData(PacketModel->index(row,2),s);//source ip
         s=QString("ARP");
-        PacketModel->setData(PacketModel->index(row,4),s);//协议
-
+        PacketModel->setData(PacketModel->index(row,4),s);//protocol
         s.setNum(Pindex->header.len);//包长
         PacketModel->setData(PacketModel->index(row,5),s);
-
         if(ntohs(Pindex->ARP_header->opcode)==ARPOP_REQUEST) // ARP request
         {
-            s=QString(("broadcast"));
-            PacketModel->setData(PacketModel->index(row,3),s);//目的IP
+            s=QString(("Broadcast"));
+            PacketModel->setData(PacketModel->index(row,3),s);//destination ip
 
             s = QString("Who has ") \
                     + iptos(Pindex->ARP_header->dip_address) \
@@ -357,7 +333,7 @@ void PrintPacket_on_fly(Packet *Pindex)
         else if(ntohs(Pindex->ARP_header->opcode)==ARPOP_REPLY)  // ARP reply
         {
             s = iptos(Pindex->ARP_header->dip_address);
-            PacketModel->setData(PacketModel->index(row,3),s); //目的IP
+            PacketModel->setData(PacketModel->index(row,3),s); //destination ip
 
             s = iptos(Pindex->ARP_header->sip_address)\
                     + QString(" is at ")\
@@ -371,43 +347,32 @@ void PrintPacket_on_fly(Packet *Pindex)
             s = "UNKNOWN ARP OPCODE";
             PacketModel->setData(PacketModel->index(row,6),s);
         }
-
     } // ARP
     else if(k==ETHER_TYPE_RARP)//RARP
     {
         s = iptos(Pindex->ARP_header->sip_address);
-        // s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->sip_address.byte1).arg(Pindex->ARP_header->sip_address.byte2).arg(Pindex->ARP_header->sip_address.byte3).arg(Pindex->ARP_header->sip_address.byte4);
-        PacketModel->setData(PacketModel->index(row,2),s);//源IP
-
+        PacketModel->setData(PacketModel->index(row,2),s);// source ip
         s=QString("RARP");
-        PacketModel->setData(PacketModel->index(row,4),s);//协议
-
+        PacketModel->setData(PacketModel->index(row,4),s);// protocol
         s.setNum(Pindex->header.len);//包长
         PacketModel->setData(PacketModel->index(row,5),s);
         if(ntohs(Pindex->ARP_header->opcode)==ARPOP_RREQUEST)       // RARP REQUEST
         {
-            s=QString(("broadcast"));
-            PacketModel->setData(PacketModel->index(row,3),s);//目的IP
-
+            s=QString(("Broadcast"));
+            PacketModel->setData(PacketModel->index(row,3),s);// destination ip
             s = QString("Who is ") \
                     + mactos(Pindex->ARP_header->dnether_address)\
                     + QString(" Tell ")\
                     + mactos(Pindex->ARP_header->snether_address);
-            // s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("Who has ")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16).arg(("的IP地址"));//报要1
             PacketModel->setData(PacketModel->index(row,6),s);
-
-            // s=QString("%1 %2：%3：%4：%5：%6：%7").arg(("Tell")).arg(Pindex->ARP_header->snether_address.byte1,0,16).arg(Pindex->ARP_header->snether_address.byte2,0,16).arg(Pindex->ARP_header->snether_address.byte3,0,16).arg(Pindex->ARP_header->snether_address.byte4,0,16).arg(Pindex->ARP_header->snether_address.byte5,0,16).arg(Pindex->ARP_header->snether_address.byte6,0,16);//报要2
-            // PacketModel->setData(PacketModel->index(row,7),s);
         }
         else if(ntohs(Pindex->ARP_header->opcode)==ARPOP_RREPLY) // RARP REPLY
         {
            s = iptos(Pindex->ARP_header->dip_address);
-            // s=QString("%1.%2.%3.%4").arg(Pindex->ARP_header->dip_address.byte1).arg(Pindex->ARP_header->dip_address.byte2).arg(Pindex->ARP_header->dip_address.byte3).arg(Pindex->ARP_header->dip_address.byte4);
-           PacketModel->setData(PacketModel->index(row,3),s);//目的IP
+           PacketModel->setData(PacketModel->index(row,3),s);
            s = mactos(Pindex->ARP_header->dnether_address) \
                    + QString(" is at ") \
                    + iptos(Pindex->ARP_header->dip_address);
-           // s=QString("%1 %2：%3：%4：%5：%6：%7%8").arg(("我有")).arg(Pindex->ARP_header->dnether_address.byte1).arg(Pindex->ARP_header->dnether_address.byte2).arg(Pindex->ARP_header->dnether_address.byte3).arg(Pindex->ARP_header->dnether_address.byte4).arg(Pindex->ARP_header->dnether_address.byte5).arg(Pindex->ARP_header->dnether_address.byte6).arg(("的IP地址"));//报要1
            PacketModel->setData(PacketModel->index(row,6),s);
         }
         else
