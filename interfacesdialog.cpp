@@ -6,28 +6,38 @@
 #include "common.h"
 #include <QDebug>
 #include <QModelIndex>
+#include "filter.h"
+#include <QNetworkInterface>
 
 extern pcap_if_t *alldevs;
+extern char errbuf[PCAP_ERRBUF_SIZE];
 extern int interface_selected;
+extern QString captureFilterString;
 
-int ready_to_selected;
 QList<QString> devicesName;
+static int ready_to_selected;
 
-interfacesDialog::interfacesDialog(QWidget *parent) :
+
+InterfacesDialog::InterfacesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
 }
 
-interfacesDialog::interfacesDialog() :
+InterfacesDialog::InterfacesDialog() :
     ui(new Ui::interfacesDialog)
 {
     ui->setupUi(this);
+    // display filter
+    ui->lineEdit_filter->setText(captureFilterString);
+
+    // disble OK button
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     setWindowTitle("Chose Interface");
 
-    interface_selected = 0;         //defalut is the first interface
+    //defalut is the first interface
+    interface_selected = 0;
 
     QStandardItemModel *AdaperInfo = new QStandardItemModel();
     QStandardItem *rootitem = new QStandardItem("Available Adapers");
@@ -41,6 +51,18 @@ interfacesDialog::interfacesDialog() :
 #endif
     int adaper_count=0;
     QString strText;
+
+//        if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
+//        {
+//            fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+//            return 0;
+//        }
+
+    if(pcap_findalldevs(&alldevs, errbuf) == -1)
+    {
+        fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+        // return -1;
+    }
 
     for(d=alldevs; d; d=d->next,adaper_count++)
     {
@@ -119,25 +141,21 @@ interfacesDialog::interfacesDialog() :
     }
     ui->treeView->setModel(AdaperInfo);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(acceptSelect()));
-
 }// interfacesDialog()
 
-interfacesDialog::~interfacesDialog()
+InterfacesDialog::~InterfacesDialog()
 {
+    pcap_freealldevs(alldevs);
+    qDebug() << "Free all devices";
     delete ui;
 }
 
-void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
+void InterfacesDialog::on_treeView_clicked(const QModelIndex &index)
 {
     QString strText;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    // QModelIndex index = ui->treeView->currentIndex();
     QString s=index.data().toString();
-    qDebug() << s;
     if(s.compare("Available Adapers")==0)
     {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -152,16 +170,31 @@ void interfacesDialog::on_treeView_clicked(const QModelIndex &index)
         else if (s=index.parent().parent().parent().data().toString(),s.compare("Available Adapers")==0)
             strText=index.parent().parent().data().toString().split(' ')[1];
         else strText=s;
-        qDebug() << strText;
     }
      ready_to_selected=devicesName.indexOf(strText);
-     qDebug() << ready_to_selected;
-     qDebug() << strText;
-     qDebug()<<"OVER";
      return;
 }
 
-void interfacesDialog::on_buttonBox_accepted()
+void InterfacesDialog::on_buttonBox_accepted()
 {
     interface_selected = ready_to_selected;
+    captureFilterString = ui->lineEdit_filter->text();
+    qDebug() << "Capture filter: " << captureFilterString;
+    qDebug() << "SELECTED INTERFACE: " << interface_selected;
+    qDebug() << "SELECTED DEVICE NAME: " << devicesName.at(interface_selected);
+
+//    qDebug() << "See HERE";
+//    foreach(QNetworkInterface interf, QNetworkInterface::allInterfaces())
+//    {
+//        qDebug() << "############ start ###########";
+//        qDebug() << interf.humanReadableName();
+//        qDebug() << interf.name();
+//        qDebug() << interf.hardwareAddress();
+//        qDebug() << "############# end ##############";
+//    }
+
+//    QNetworkInterface inf = QNetworkInterface::interfaceFromIndex(interface_selected);
+//    qDebug() << "interface name: ",
+//    qDebug() << inf.humanReadableName();
+
 }

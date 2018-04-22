@@ -7,13 +7,14 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += network
 
 TARGET = mysniffer
 TEMPLATE = app
 
 # where my winpacp install
 INCLUDEPATH += D:/winpcap-develop-pack/WpdPack/Include
-LIBS += -L D:/winpcap-develop-pack/WpdPack/Lib -lwpcap -lPacket
+LIBS += -L D:/winpcap-develop-pack/WpdPack/Lib -lwpcap -lPacket -lws2_32
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -34,13 +35,27 @@ SOURCES += \
         mainwindow.cpp \
     packet.cpp \
     interfacesdialog.cpp \
-    common.cpp
+    common.cpp \
+    filter.cpp \
+    capturethread.cpp \
+    analysethread.cpp \
+    offlineanalysethread.cpp \
+    packetprintthread.cpp \
+    detailprintthread.cpp \
+    rawprintthread.cpp
 
 HEADERS += \
         mainwindow.h \
     packet.h \
     interfacesdialog.h \
-    common.h
+    common.h \
+    filter.h \
+    capturethread.h \
+    analysethread.h \
+    offlineanalysethread.h \
+    packetprintthread.h \
+    detailprintthread.h \
+    rawprintthread.h
 
 FORMS += \
         mainwindow.ui \
